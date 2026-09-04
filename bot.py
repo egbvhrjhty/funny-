@@ -15,12 +15,9 @@ import edge_tts
 # ==========================================
 # 🟢 1. SETTINGS & FOLDERS 🟢
 # ==========================================
-CHANNEL_NAME = "@YourChannelName"  
-
 OUTPUT_FOLDER = "./output"
 TEMP_FOLDER = "./temp"
 TEXT_FILE_PATH = "./jokes.txt"
-FONT_PATH = "./NirmalaB.ttf" 
 BG_FOLDER = "./bgs" 
 SFX_FOLDER = "./sfx"       
 BGM_FILE = "./bgm.mp3"     
@@ -40,18 +37,19 @@ char_colors = {
 }
 
 # ==========================================
-# 2. AUDIO GENERATION 
+# 2. AUDIO GENERATION (TTS VOICE)
 # ==========================================
 async def download_voices(story_lines):
-    print("🎙️ Generating Voices...")
+    print("🎙️ Generating Loud Voices...")
     for i, line in enumerate(story_lines):
         filename = os.path.join(TEMP_FOLDER, f"temp_audio_{i}.mp3")
         line["audio"] = filename
-        communicate = edge_tts.Communicate(line["text"], line["voice"], rate=line["rate"], pitch=line["pitch"])
+        # 🟢 वॉल्यूम +50% बढ़ाया गया है
+        communicate = edge_tts.Communicate(line["text"], line["voice"], rate=line["rate"], pitch=line["pitch"], volume="+50%")
         await communicate.save(filename)
 
 # ==========================================
-# 3. TEXT PARSING (READING CAMERA COMMANDS)
+# 3. TEXT PARSING (PROMPT READING)
 # ==========================================
 def fetch_and_delete_first_joke():
     if not os.path.exists(TEXT_FILE_PATH): return None
@@ -79,7 +77,6 @@ def fetch_and_delete_first_joke():
             bracket_content = match.group(2).strip().lower() if match.group(2) else "normal"
             text = match.group(3).strip()
             
-            # 🟢 नया: Bracket के अंदर कॉमा (,) से SFX और Camera को अलग करना
             bracket_parts = [p.strip() for p in bracket_content.split(',')]
             emotion = bracket_parts[0] if len(bracket_parts) > 0 else "normal"
             camera_cmd = bracket_parts[1] if len(bracket_parts) > 1 else "normal"
@@ -95,7 +92,7 @@ def fetch_and_delete_first_joke():
                 "text": text,
                 "voice": voice,
                 "emotion": emotion,
-                "camera": camera_cmd, # <--- सेव किया गया कैमरा कमांड
+                "camera": camera_cmd,
                 "pitch": pitch,
                 "rate": rate
             })
@@ -107,31 +104,6 @@ def fetch_and_delete_first_joke():
 def draw_background(surf, bg_img):
     if bg_img: surf.blit(bg_img, (0, 0))
     else: surf.fill((160, 140, 240)) 
-
-def render_text_with_outline(surf, text, font, color, x, y, outline_color=(0,0,0), thickness=3, center_x=False):
-    words = text.split(" ")
-    lines, current_line = [], ""
-    max_width = WIDTH - 80
-    
-    for word in words:
-        test_line = current_line + word + " "
-        if font.size(test_line)[0] < max_width: current_line = test_line
-        else:
-            lines.append(current_line)
-            current_line = word + " "
-    lines.append(current_line)
-    
-    for i, line in enumerate(lines):
-        final_x = x
-        if center_x: final_x = (WIDTH - font.size(line)[0]) // 2
-            
-        for dx in range(-thickness, thickness + 1):
-            for dy in range(-thickness, thickness + 1):
-                if dx != 0 or dy != 0:
-                    txt_bg = font.render(line, True, outline_color)
-                    surf.blit(txt_bg, (final_x + dx, y + i * 55 + dy))
-        txt_fg = font.render(line, True, color)
-        surf.blit(txt_fg, (final_x, y + i * 55))
 
 class Character:
     def __init__(self, name, color):
@@ -155,7 +127,8 @@ class Character:
     def draw(self, surf, is_talking, emotion, timer):
         x, y = int(self.pos[0]), int(self.pos[1])
         
-        if emotion in ["shock", "slap", "punch"] and is_talking: 
+        # 🟢 Character jump logic
+        if emotion in ["shock", "slap", "punch"] and not is_talking: 
             y -= abs(math.sin(timer * 0.8)) * 40 
             
         body_y = y 
@@ -206,7 +179,7 @@ class Character:
 # 5. MAIN EXECUTION
 # ==========================================
 async def main():
-    print("🚀 Auto DIRECTOR Video Generator Started...")
+    print("🚀 Auto Video Generator Started...")
     
     current_story = fetch_and_delete_first_joke()
     if not current_story: return
@@ -217,15 +190,6 @@ async def main():
     main_surf = pygame.Surface((WIDTH, HEIGHT))
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     
-    try: 
-        hindi_font = pygame.font.Font(FONT_PATH, 48) 
-        title_font = pygame.font.Font(FONT_PATH, 65)
-        watermark_font = pygame.font.Font(FONT_PATH, 35)
-    except: 
-        hindi_font = pygame.font.SysFont("Arial", 48)
-        title_font = pygame.font.SysFont("Arial", 65)
-        watermark_font = pygame.font.SysFont("Arial", 35)
-
     loaded_bg = None
     bg_files = [f for f in os.listdir(BG_FOLDER) if f.endswith(('.png', '.jpg', '.jpeg'))]
     if bg_files:
@@ -242,11 +206,11 @@ async def main():
     chars = {speaker: Character(speaker, color) for speaker, color in char_colors.items()}
     audio_clips = []
     timer = 0
-    global_frame = 0
-    total_frames = 0
     
+    # 🟢 Audio Mixing Logic (SFX AT THE END)
     for idx, line in enumerate(current_story):
-        speech_clip = AudioFileClip(line["audio"]).fx(afx.volumex, 1.8)
+        # Voice Volume 3.0x Booster
+        speech_clip = AudioFileClip(line["audio"]).fx(afx.volumex, 3.0)
         emotion = line.get("emotion", "normal")
         
         sfx_path = None
@@ -257,24 +221,28 @@ async def main():
             elif os.path.exists(wav_path): sfx_path = wav_path
 
         if sfx_path:
-            sfx_clip = AudioFileClip(sfx_path).fx(afx.volumex, 1.5)
-            mixed_audio = CompositeAudioClip([speech_clip.set_start(0), sfx_clip.set_start(0)])
+            sfx_clip = AudioFileClip(sfx_path).fx(afx.volumex, 1.8)
+            # 🟢 SFX starts exactly when speech ends!
+            mixed_audio = CompositeAudioClip([
+                speech_clip.set_start(0), 
+                sfx_clip.set_start(speech_clip.duration)
+            ])
+            line["total_dur"] = speech_clip.duration + sfx_clip.duration + 0.2
+            line["speech_dur"] = speech_clip.duration
             audio_clips.append(mixed_audio)
         else:
+            line["total_dur"] = speech_clip.duration + 0.4
+            line["speech_dur"] = speech_clip.duration
             audio_clips.append(speech_clip)
-            
-        total_frames += int(speech_clip.duration * FPS) + 12
-
-    total_frames += (2 * FPS) 
 
     print("🎥 Rendering Video Frames...")
     for idx, line in enumerate(current_story):
         speaker = line["speaker"]
         emotion = line.get("emotion", "normal")
-        camera_cmd = line.get("camera", "normal") # 🟢 यहाँ से कैमरा कमांड पढ़ा जा रहा है!
-        speech_clip = audio_clips[idx] 
+        camera_cmd = line.get("camera", "normal") 
         
-        frames_to_render = int(speech_clip.duration * FPS) + 12 
+        frames_to_render = int(line["total_dur"] * FPS)
+        speech_frames = int(line["speech_dur"] * FPS)
         
         if "Wife" in chars:
             chars["Wife"].target_pos = [WIDTH//2 - 180, HEIGHT//2 + 100]
@@ -285,31 +253,22 @@ async def main():
 
         for f in range(frames_to_render):
             timer += 1
-            global_frame += 1
-            is_talking_now = f < int(speech_clip.duration * FPS)
+            # 🟢 Mouth movement strict limit
+            is_talking_now = f < speech_frames
+            # 🟢 Camera/Reaction action time (When SFX plays at the end)
+            is_action_time = f >= speech_frames
             
             draw_background(main_surf, loaded_bg)
                 
             for name, char in chars.items():
                 is_talking = (name == speaker and is_talking_now)
+                # Show emotion throughout, but jump/react during action time
                 char.update()
-                char.draw(main_surf, is_talking, emotion if is_talking else "normal", timer)
+                char.draw(main_surf, is_talking, emotion, timer if is_action_time else 0)
                 
-            watermark_surf = watermark_font.render(CHANNEL_NAME, True, (255, 255, 255))
-            watermark_surf.set_alpha(100)
-            main_surf.blit(watermark_surf, (20, 150))
-                
-            pygame.draw.rect(main_surf, (255, 200, 0), (0, 40, WIDTH, 90))
-            render_text_with_outline(main_surf, "Husband vs Wife 😂", title_font, (255, 255, 255), 0, 50, (0,0,0), 5, center_x=True)
-
-            if is_talking_now:
-                spk_color = (255, 100, 100) if emotion in ["angry", "slap"] else (255, 255, 100)
-                render_text_with_outline(main_surf, f"{speaker}:", title_font, spk_color, 40, HEIGHT - 380, (0,0,0), 5)
-                render_text_with_outline(main_surf, line['text'], hindi_font, (255, 255, 255), 40, HEIGHT - 290, (0,0,0), 4)
-
-            # 🟢 PROMPT CONTROLLED CAMERA MOVEMENT 
-            is_zoomed = "zoom" in camera_cmd and is_talking_now
-            is_shaking = "shake" in camera_cmd and is_talking_now
+            # 🟢 Camera Movement exactly at SFX time
+            is_zoomed = "zoom" in camera_cmd and is_action_time
+            is_shaking = "shake" in camera_cmd and is_action_time
             
             if is_zoomed or is_shaking:
                 zoom_scale = 1.3 if is_zoomed else 1.0
@@ -333,41 +292,23 @@ async def main():
             else:
                 screen.fill((0,0,0))
                 screen.blit(main_surf, (0, 0))
-                
-            progress_ratio = min(1.0, global_frame / total_frames)
-            pygame.draw.rect(screen, (255, 0, 0), (0, HEIGHT - 12, int(WIDTH * progress_ratio), 12))
             
             view = pygame.surfarray.array3d(screen)
             view = view.transpose([1, 0, 2])
             img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
             video_writer.write(img_bgr)
 
+    # Laugh Track frames (No text, just character standing)
     laugh_frames = 2 * FPS 
     for f in range(laugh_frames):
         timer += 1
-        global_frame += 1
         draw_background(main_surf, loaded_bg)
         for name, char in chars.items():
             char.update()
             char.draw(main_surf, False, "normal", timer)
-            
-        pygame.draw.rect(main_surf, (255, 200, 0), (0, 40, WIDTH, 90))
-        render_text_with_outline(main_surf, "Husband vs Wife 😂", title_font, (255, 255, 255), 0, 50, (0,0,0), 5, center_x=True)
-        
-        pop_scale = min(1.0, f / 10.0) 
-        if pop_scale > 0:
-            box_w, box_h = int(350 * pop_scale), int(100 * pop_scale)
-            box_x, box_y = (WIDTH - box_w) // 2, HEIGHT - 350
-            pygame.draw.rect(main_surf, (200, 0, 0), (box_x, box_y, box_w, box_h), border_radius=20)
-            pygame.draw.rect(main_surf, (255, 255, 255), (box_x, box_y, box_w, box_h), 5, border_radius=20)
-            if pop_scale == 1.0:
-                render_text_with_outline(main_surf, "SUBSCRIBE", title_font, (255, 255, 255), 0, box_y + 15, (0,0,0), 3, center_x=True)
         
         screen.fill((0,0,0))
         screen.blit(main_surf, (0, 0))
-        
-        progress_ratio = min(1.0, global_frame / total_frames)
-        pygame.draw.rect(screen, (255, 0, 0), (0, HEIGHT - 12, int(WIDTH * progress_ratio), 12))
         
         view = pygame.surfarray.array3d(screen)
         view = view.transpose([1, 0, 2])
@@ -385,7 +326,7 @@ async def main():
         final_audio = concatenate_audioclips([final_audio, laugh_clip.set_start(0).set_duration(laugh_frames / FPS)])
 
     if os.path.exists(BGM_FILE):
-        bgm_clip = AudioFileClip(BGM_FILE).fx(afx.volumex, 0.12).loop(duration=final_audio.duration)
+        bgm_clip = AudioFileClip(BGM_FILE).fx(afx.volumex, 0.15).loop(duration=final_audio.duration)
         final_audio = CompositeAudioClip([final_audio, bgm_clip])
 
     video_clip = VideoFileClip(temp_video_path)
@@ -394,7 +335,7 @@ async def main():
     final_video.write_videofile(final_video_path, codec="libx264", audio_codec="aac", fps=FPS, preset="ultrafast", logger=None)
     video_clip.close()
     
-    print(f"✅ Video successfully saved at: {final_video_path}")
+    print(f"✅ Clean Video successfully saved at: {final_video_path}")
 
 if __name__ == "__main__":
     asyncio.run(main())
