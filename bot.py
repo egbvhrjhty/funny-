@@ -37,18 +37,19 @@ char_colors = {
 }
 
 # ==========================================
-# 2. AUDIO GENERATION (TTS VOICE)
+# 2. AUDIO GENERATION (SUPER LOUD VOICE)
 # ==========================================
 async def download_voices(story_lines):
-    print("🎙️ Generating Loud Voices...")
+    print("🎙️ Generating AI Voices...")
     for i, line in enumerate(story_lines):
         filename = os.path.join(TEMP_FOLDER, f"temp_audio_{i}.mp3")
         line["audio"] = filename
-        communicate = edge_tts.Communicate(line["text"], line["voice"], rate=line["rate"], pitch=line["pitch"], volume="+50%")
+        # 🟢 वॉल्यूम +100% कर दिया गया है
+        communicate = edge_tts.Communicate(line["text"], line["voice"], rate=line["rate"], pitch=line["pitch"], volume="+100%")
         await communicate.save(filename)
 
 # ==========================================
-# 3. TEXT PARSING (PROMPT READING)
+# 3. TEXT PARSING (READING PROMPTS)
 # ==========================================
 def fetch_and_delete_first_joke():
     if not os.path.exists(TEXT_FILE_PATH): return None
@@ -123,11 +124,9 @@ class Character:
                 self.is_blinking = False
                 self.blink_timer = 0
 
-    # 🟢 बग फिक्स: timer अब हमेशा पास होगा ताकि मुंह सही से हिले!
     def draw(self, surf, is_talking, emotion, timer, is_action_time):
         x, y = int(self.pos[0]), int(self.pos[1])
         
-        # जंप (Jump) सिर्फ SFX/एक्शन के समय होगा
         if emotion in ["shock", "slap", "punch", "funny"] and is_action_time: 
             y -= abs(math.sin(timer * 0.8)) * 40 
             
@@ -167,6 +166,7 @@ class Character:
         if emotion in ["sad", "cry"]: 
             pygame.draw.ellipse(surf, (0, 191, 255), (x + 30 + look_offset, head_y - 5, 12, 20))
 
+        # 🟢 मुँह की कोडिंग: अगर is_talking False है तो तुरंत लाइन बन जाएगी (मुँह बंद)
         if is_talking:
             m_size = abs(math.sin(timer * 1.5)) * 30 + 5
             if emotion in ["shock", "slap"]: m_size = 45
@@ -207,10 +207,16 @@ async def main():
     audio_clips = []
     timer = 0
     
-    # 🟢 Audio Mixing Logic (SFX AT THE END)
+    # 🟢 Audio Mixing Logic (MOUTH SYNC FIX)
     for idx, line in enumerate(current_story):
-        # Voice Volume 3.0x Booster
-        speech_clip = AudioFileClip(line["audio"]).fx(afx.volumex, 3.0)
+        # वॉल्यूम को 4.0x (400%) कर दिया है
+        speech_clip = AudioFileClip(line["audio"]).fx(afx.volumex, 4.0)
+        
+        # 🟢 BUG FIX: AI Voice लास्ट में 0.15 सेकंड खाली रहता है। 
+        # इसे काट दिया (Trim) गया है ताकि मुँह 0.0 सेकंड में बंद हो जाए!
+        if speech_clip.duration > 0.3:
+            speech_clip = speech_clip.subclip(0, speech_clip.duration - 0.15)
+            
         emotion = line.get("emotion", "normal")
         
         sfx_path = None
@@ -224,13 +230,13 @@ async def main():
             sfx_clip = AudioFileClip(sfx_path).fx(afx.volumex, 1.8)
             mixed_audio = CompositeAudioClip([
                 speech_clip.set_start(0), 
-                sfx_clip.set_start(speech_clip.duration)
+                sfx_clip.set_start(speech_clip.duration) # SFX बिल्कुल आवाज़ खत्म होने पर बजेगा
             ])
             line["total_dur"] = speech_clip.duration + sfx_clip.duration + 0.2
             line["speech_dur"] = speech_clip.duration
             audio_clips.append(mixed_audio)
         else:
-            line["total_dur"] = speech_clip.duration + 0.4
+            line["total_dur"] = speech_clip.duration + 0.3 # थोडा सा पॉज़
             line["speech_dur"] = speech_clip.duration
             audio_clips.append(speech_clip)
 
@@ -252,6 +258,7 @@ async def main():
 
         for f in range(frames_to_render):
             timer += 1
+            # 🟢 Exact frame cutoff for mouth animation
             is_talking_now = f < speech_frames
             is_action_time = f >= speech_frames
             
@@ -260,7 +267,6 @@ async def main():
             for name, char in chars.items():
                 is_talking = (name == speaker and is_talking_now)
                 char.update()
-                # 🟢 बग फिक्स: timer पास किया गया ताकि मुंह सही से हिले!
                 char.draw(main_surf, is_talking, emotion if name == speaker else "normal", timer, is_action_time)
                 
             is_zoomed = "zoom" in camera_cmd and is_action_time
@@ -294,6 +300,7 @@ async def main():
             img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
             video_writer.write(img_bgr)
 
+    # Laugh Track Frames (Clean screen)
     laugh_frames = 2 * FPS 
     for f in range(laugh_frames):
         timer += 1
@@ -330,7 +337,7 @@ async def main():
     final_video.write_videofile(final_video_path, codec="libx264", audio_codec="aac", fps=FPS, preset="ultrafast", logger=None)
     video_clip.close()
     
-    print(f"✅ Clean Video successfully saved at: {final_video_path}")
+    print(f"✅ CLEAN & PERFECT VIDEO successfully saved at: {final_video_path}")
 
 if __name__ == "__main__":
     asyncio.run(main())
