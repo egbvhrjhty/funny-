@@ -11,6 +11,10 @@ import re
 from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_audioclips, CompositeAudioClip
 import moviepy.audio.fx.all as afx
 import edge_tts
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from google.auth.transport.requests import Request
 
 # ==========================================
 # 🟢 1. SETTINGS & FOLDERS 🟢
@@ -22,22 +26,21 @@ BG_FOLDER = "./bgs"
 SFX_FOLDER = "./sfx"       
 BGM_FILE = "./bgm.mp3"     
 LAUGH_FILE = "./laugh.mp3" 
+TOKENS_FOLDER = "./tokens" # YouTube Token folder
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 os.makedirs(TEMP_FOLDER, exist_ok=True)
 os.makedirs(BG_FOLDER, exist_ok=True)
 os.makedirs(SFX_FOLDER, exist_ok=True)
+os.makedirs(TOKENS_FOLDER, exist_ok=True)
 
 WIDTH, HEIGHT = 720, 1280
 FPS = 30
 
-char_colors = {
-    "Wife": (255, 105, 180),
-    "Husband": (100, 200, 100)
-}
+char_colors = {"Wife": (255, 105, 180), "Husband": (100, 200, 100)}
 
 # ==========================================
-# 2. AUDIO GENERATION
+# 2. AUDIO & TEXT PARSING
 # ==========================================
 async def download_voices(story_lines):
     print("🎙️ Generating AI Voices...")
@@ -47,9 +50,6 @@ async def download_voices(story_lines):
         communicate = edge_tts.Communicate(line["text"], line["voice"], rate=line["rate"], pitch=line["pitch"], volume="+100%")
         await communicate.save(filename)
 
-# ==========================================
-# 3. TEXT PARSING (READING PROMPTS)
-# ==========================================
 def fetch_and_delete_first_joke():
     if not os.path.exists(TEXT_FILE_PATH): return None
     with open(TEXT_FILE_PATH, 'r', encoding='utf-8') as f:
@@ -82,9 +82,6 @@ def fetch_and_delete_first_joke():
             
             is_wife = (speaker.lower() == "wife")
             voice = "hi-IN-SwaraNeural" if is_wife else "hi-IN-MadhurNeural"
-            pitch = "+45Hz" if is_wife else "+35Hz" 
-            rate = "+25%" if is_wife else "+20%"
-            
             story_data.append({
                 "scene": idx + 1,
                 "speaker": "Wife" if is_wife else "Husband",
@@ -92,13 +89,51 @@ def fetch_and_delete_first_joke():
                 "voice": voice,
                 "emotion": emotion,
                 "camera": camera_cmd,
-                "pitch": pitch,
-                "rate": rate
+                "pitch": "+45Hz" if is_wife else "+35Hz",
+                "rate": "+25%" if is_wife else "+20%"
             })
     return story_data
 
 # ==========================================
-# 4. DRAWING FUNCTIONS (WITH REAL ANIMATION)
+# 3. YOUTUBE UPLOAD FUNCTION
+# ==========================================
+def upload_to_youtube(video_file):
+    print("🌐 YouTube पर अपलोड हो रहा है...")
+    token_files = [os.path.join(TOKENS_FOLDER, f) for f in os.listdir(TOKENS_FOLDER) if f.endswith('.json')]
+    if not token_files:
+        print("❌ Token नहीं मिला! वीडियो सेव हो गई है लेकिन अपलोड नहीं हुई।")
+        return False
+        
+    yt_titles = ["Husband vs Wife 😂 | Funny Cartoon Joke", "पति पत्नी का मज़ेदार जोक 🤣 | Make Joke Of", "ये वीडियो देखकर हंसी नहीं रुकेगी 😆 | Funny Shorts"]
+    request_body = {
+        "snippet": {
+            "title": random.choice(yt_titles), 
+            "description": "Husband Wife funny joke in Hindi! Subscribe for more. #funny #joke #cartoon #shorts", 
+            "tags": ["funny", "comedy", "husband wife joke", "hindi jokes", "make joke of", "cartoon"], 
+            "categoryId": "23" # Comedy
+        },
+        "status": {"privacyStatus": "public", "selfDeclaredMadeForKids": False}
+    }
+
+    for token_path in token_files:
+        try:
+            creds = Credentials.from_authorized_user_file(token_path, ["https://www.googleapis.com/auth/youtube.upload"])
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+                with open(token_path, 'w') as tf: tf.write(creds.to_json())
+                    
+            youtube = build('youtube', 'v3', credentials=creds)
+            media = MediaFileUpload(video_file, chunksize=-1, resumable=True)
+            request = youtube.videos().insert(part="snippet,status", body=request_body, media_body=media)
+            response = request.execute()
+            print(f"✅ वीडियो LIVE हो गई है: https://youtu.be/{response['id']}")
+            return True
+        except Exception as e:
+            print(f"❌ अपलोड एरर: {e}")
+    return False
+
+# ==========================================
+# 4. DRAWING & MAIN EXECUTION
 # ==========================================
 def draw_background(surf, bg_img):
     if bg_img: surf.blit(bg_img, (0, 0))
@@ -119,132 +154,41 @@ class Character:
         self.blink_timer += 1
         if self.blink_timer > random.randint(80, 150):
             self.is_blinking = True
-            if self.blink_timer > 160:
-                self.is_blinking = False
-                self.blink_timer = 0
+            if self.blink_timer > 160: self.is_blinking = False; self.blink_timer = 0
 
-    def draw(self, surf, is_talking, emotion, timer, action_frame):
-        world_x, world_y = int(self.pos[0]), int(self.pos[1])
-        
-        # 🟢 Character के लिए अलग Surface ताकि हम उसे घुमा (Rotate/Fall) सकें
-        char_surf = pygame.Surface((350, 450), pygame.SRCALPHA)
-        cx, cy = 175, 250  # Center position
-
-        angle = 0
-        y_off = 0
-        is_hitting = False
-        hit_dir = 1 if not self.flip else -1
-        
-        face_color = (255, 120, 120) if emotion in ["angry", "slap", "punch", "victim"] else (255, 220, 180)
-
-        # ==========================================
-        # 🟢 ANIMATION LOGIC (ACTION TIMING)
-        # ==========================================
-        if action_frame >= 0:
-            # 1. मारने वाला (Attacker)
-            if emotion in ["slap", "punch"]:
-                if action_frame < 10:  # हाथ आगे बढ़ेगा
-                    is_hitting = True
-
-            # 2. पिटने वाला (Victim - Falling & Getting up)
-            elif emotion == "victim":
-                face_color = (255, 100, 100) # गाल लाल हो जाएगा
-                if action_frame < 10:
-                    # गिरना (Falling)
-                    progress = action_frame / 10.0
-                    angle = -90 * progress if self.flip else 90 * progress
-                    y_off = 100 * progress
-                elif action_frame < 30:
-                    # ज़मीन पर पड़े रहना (Down)
-                    angle = -90 if self.flip else 90
-                    y_off = 100
-                elif action_frame < 45:
-                    # वापस उठना (Getting back up)
-                    progress = (action_frame - 30) / 15.0
-                    angle = (-90 if self.flip else 90) * (1.0 - progress)
-                    y_off = 100 * (1.0 - progress)
-
-            # 3. डरने वाला (Shock - Jumping)
-            elif emotion == "shock":
-                if action_frame < 20:
-                    y_off = -abs(math.sin(action_frame * 0.5)) * 60
-
-        # ==========================================
-        # 🟢 DRAWING ON LOCAL SURFACE
-        # ==========================================
-        # Shadow (Draw directly on main screen)
-        pygame.draw.ellipse(surf, (0,0,0,80), (world_x-70, world_y+180, 140, 30))
-
-        # Body & Legs
-        pygame.draw.line(char_surf, (20,20,20), (cx - 30, cy + 160), (cx - 30, cy + 190), 12)
-        pygame.draw.line(char_surf, (20,20,20), (cx + 30, cy + 160), (cx + 30, cy + 190), 12)
-        pygame.draw.rect(char_surf, self.color, (cx-60, cy, 120, 160), border_radius=30)
-        pygame.draw.rect(char_surf, (20,20,20), (cx-60, cy, 120, 160), 6, border_radius=30)
-
-        # Arms
+    def draw(self, surf, is_talking, emotion, timer):
+        x, y = int(self.pos[0]), int(self.pos[1])
+        body_y = y 
         arm_swing = math.sin(timer * 0.5) * 20 if is_talking else 0
-        if emotion == "angry" and is_talking: arm_swing = math.sin(timer * 2.0) * 40
         
-        if is_hitting:
-            # 🟢 मारने वाला हाथ आगे की तरफ!
-            pygame.draw.line(char_surf, (20,20,20), (cx, cy + 50), (cx + (120 * hit_dir), cy + 40), 15)
-        else:
-            pygame.draw.line(char_surf, (20,20,20), (cx - 60, cy + 50), (cx - 90, cy + 90 + arm_swing), 12)
-            pygame.draw.line(char_surf, (20,20,20), (cx + 60, cy + 50), (cx + 90, cy + 90 - arm_swing), 12)
+        pygame.draw.ellipse(surf, (0,0,0,80), (x-70, y+180, 140, 30))
+        pygame.draw.line(surf, (20,20,20), (x - 30, body_y + 160), (x - 30, y + 190), 12)
+        pygame.draw.line(surf, (20,20,20), (x + 30, body_y + 160), (x + 30, y + 190), 12)
+        pygame.draw.rect(surf, self.color, (x-60, body_y, 120, 160), border_radius=30)
+        pygame.draw.rect(surf, (20,20,20), (x-60, body_y, 120, 160), 6, border_radius=30)
 
-        # Head
+        pygame.draw.line(surf, (20,20,20), (x - 60, body_y + 50), (x - 90, body_y + 90 + arm_swing), 12)
+        pygame.draw.line(surf, (20,20,20), (x + 60, body_y + 50), (x + 90, body_y + 90 - arm_swing), 12)
+
         head_bounce = math.sin(timer * 1.5) * 5 if is_talking else 0
-        head_y = cy - 60 + head_bounce
-        pygame.draw.circle(char_surf, face_color, (cx, head_y), 70)
-        pygame.draw.circle(char_surf, (20,20,20), (cx, head_y), 70, 6)
-
-        # Eyes
-        look = -10 if self.flip else 10
-        eye_h = 4 if self.is_blinking else 30
+        head_y = body_y - 60 + head_bounce
         
-        if emotion == "victim" and 0 <= action_frame < 45:
-            # 🟢 पिटने के बाद चकराती (Dizzy ❌) आँखें 
-            pygame.draw.line(char_surf, (20,20,20), (cx-35+look, head_y-30), (cx-15+look, head_y-10), 5)
-            pygame.draw.line(char_surf, (20,20,20), (cx-15+look, head_y-30), (cx-35+look, head_y-10), 5)
-            
-            pygame.draw.line(char_surf, (20,20,20), (cx+5+look, head_y-30), (cx+25+look, head_y-10), 5)
-            pygame.draw.line(char_surf, (20,20,20), (cx+25+look, head_y-30), (cx+5+look, head_y-10), 5)
-        else:
-            if emotion in ["shock"]: eye_h = 50
-            pygame.draw.ellipse(char_surf, (20,20,20), (cx - 30 + look, head_y - 20, 20, eye_h))
-            pygame.draw.ellipse(char_surf, (20,20,20), (cx + 10 + look, head_y - 20, 20, eye_h))
+        pygame.draw.circle(surf, (255, 220, 180), (x, head_y), 70)
+        pygame.draw.circle(surf, (20,20,20), (x, head_y), 70, 6)
 
-        # Expressions (Angry Vein / Sad Tear)
-        if emotion in ["angry", "slap"]:
-            pygame.draw.line(char_surf, (20,20,20), (cx - 40 + look, head_y - 35), (cx - 15 + look, head_y - 15), 5)
-            pygame.draw.line(char_surf, (20,20,20), (cx + 35 + look, head_y - 35), (cx + 10 + look, head_y - 15), 5)
-
-        if emotion in ["sad", "cry"]: 
-            pygame.draw.ellipse(char_surf, (0, 191, 255), (cx + 30 + look, head_y - 5, 12, 20))
-
-        # Mouth (0.0 sec Sync)
+        eye_w, eye_h = 20, (4 if self.is_blinking else 30)
+        look_offset = -10 if self.flip else 10
+        pygame.draw.ellipse(surf, (20,20,20), (x - 30 + look_offset, head_y - 20, eye_w, eye_h))
+        pygame.draw.ellipse(surf, (20,20,20), (x + 10 + look_offset, head_y - 20, eye_w, eye_h))
+        
         if is_talking:
             m_size = abs(math.sin(timer * 1.5)) * 30 + 5
-            if emotion in ["shock", "slap"]: m_size = 45
-            pygame.draw.ellipse(char_surf, (180, 0, 0), (cx - 20 + look, head_y + 25, 40, m_size))
+            pygame.draw.ellipse(surf, (180, 0, 0), (x - 20 + look_offset, head_y + 25, 40, m_size))
         else:
-            pygame.draw.line(char_surf, (20,20,20), (cx - 15 + look, head_y + 35), (cx + 15 + look, head_y + 35), 6)
+            pygame.draw.line(surf, (20,20,20), (x - 15 + look_offset, head_y + 35), (x + 15 + look_offset, head_y + 35), 6)
 
-        # 🟢 ROTATE AND BLIT ON MAIN SCREEN (गिरने का इफ़ेक्ट)
-        if angle != 0:
-            rotated_surf = pygame.transform.rotate(char_surf, angle)
-            new_rect = rotated_surf.get_rect(center=(world_x, world_y + y_off))
-            surf.blit(rotated_surf, new_rect.topleft)
-        else:
-            surf.blit(char_surf, (world_x - cx, world_y + y_off - cy))
-
-
-# ==========================================
-# 5. MAIN EXECUTION
-# ==========================================
 async def main():
-    print("🚀 Auto DIRECTOR Video Generator Started...")
-    
+    print("🚀 Auto Video Generator Started...")
     current_story = fetch_and_delete_first_joke()
     if not current_story: return
         
@@ -263,23 +207,22 @@ async def main():
 
     temp_video_path = os.path.join(TEMP_FOLDER, "temp_video.mp4")
     final_video_path = os.path.join(OUTPUT_FOLDER, "FINAL_UPLOAD.mp4")
-
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     video_writer = cv2.VideoWriter(temp_video_path, fourcc, FPS, (WIDTH, HEIGHT))
 
     chars = {speaker: Character(speaker, color) for speaker, color in char_colors.items()}
     audio_clips = []
+    timer = 0
     
     for idx, line in enumerate(current_story):
         speech_clip = AudioFileClip(line["audio"]).fx(afx.volumex, 4.0)
         
-        # 🟢 SILENCE TRIMMER (मूह 1 सेकंड हिलने वाले बग का परमानेंट फिक्स)
+        # 🟢 SILENCE TRIMMER
         trim_amount = 0.5 
         if speech_clip.duration > (trim_amount + 0.1):
             speech_clip = speech_clip.subclip(0, speech_clip.duration - trim_amount)
             
         emotion = line.get("emotion", "normal")
-        
         sfx_path = None
         if emotion != "normal":
             mp3_path = os.path.join(SFX_FOLDER, f"{emotion}.mp3")
@@ -291,10 +234,9 @@ async def main():
             sfx_clip = AudioFileClip(sfx_path).fx(afx.volumex, 1.8)
             mixed_audio = CompositeAudioClip([
                 speech_clip.set_start(0), 
-                sfx_clip.set_start(speech_clip.duration) 
+                sfx_clip.set_start(speech_clip.duration) # SFX AT THE END
             ])
-            # गिरने और उठने के लिए कम से कम 1.5 सेकंड (45 frames) चाहिए
-            line["total_dur"] = speech_clip.duration + max(sfx_clip.duration, 1.5)
+            line["total_dur"] = speech_clip.duration + sfx_clip.duration + 0.2
             line["speech_dur"] = speech_clip.duration
             audio_clips.append(mixed_audio)
         else:
@@ -303,7 +245,6 @@ async def main():
             audio_clips.append(speech_clip)
 
     print("🎥 Rendering Video Frames...")
-    timer = 0
     for idx, line in enumerate(current_story):
         speaker = line["speaker"]
         emotion = line.get("emotion", "normal")
@@ -312,89 +253,55 @@ async def main():
         frames_to_render = int(line["total_dur"] * FPS)
         speech_frames = int(line["speech_dur"] * FPS)
         
-        if "Wife" in chars:
-            chars["Wife"].target_pos = [WIDTH//2 - 180, HEIGHT//2 + 100]
-            chars["Wife"].flip = False
-        if "Husband" in chars:
-            chars["Husband"].target_pos = [WIDTH//2 + 180, HEIGHT//2 + 100]
-            chars["Husband"].flip = True   
+        chars["Wife"].target_pos = [WIDTH//2 - 180, HEIGHT//2 + 100]; chars["Wife"].flip = False
+        chars["Husband"].target_pos = [WIDTH//2 + 180, HEIGHT//2 + 100]; chars["Husband"].flip = True   
 
         for f in range(frames_to_render):
             timer += 1
             is_talking_now = f < speech_frames
             
-            # Action Frame 0 से शुरू होगा जब बोलना बंद होगा!
-            action_frame = f - speech_frames
-            
             draw_background(main_surf, loaded_bg)
-                
             for name, char in chars.items():
                 is_talking = (name == speaker and is_talking_now)
                 char.update()
+                char.draw(main_surf, is_talking, emotion, timer)
                 
-                # 🟢 Determine Emotion for drawing
-                char_emotion = "normal"
-                if name == speaker: 
-                    char_emotion = emotion
-                elif emotion in ["slap", "punch"]:
-                    # जो बोल नहीं रहा, वो Victim (पिटने वाला) है!
-                    char_emotion = "victim"
-                
-                char.draw(main_surf, is_talking, char_emotion, timer, action_frame)
-                
-            # 🟢 CAMERA LOGIC 
-            is_action_time = (action_frame >= 0) # कैमरा इफ़ेक्ट भी लास्ट में होगा!
-            is_zoomed = "zoom" in camera_cmd and is_action_time
-            is_shaking = "shake" in camera_cmd and is_action_time
+            # 🟢 CAMERA ZOOM AT START
+            is_zoomed = "zoom" in camera_cmd and is_talking_now
+            is_shaking = "shake" in camera_cmd and is_talking_now
             
             if is_zoomed or is_shaking:
                 zoom_scale = 1.3 if is_zoomed else 1.0
                 new_w, new_h = int(WIDTH * zoom_scale), int(HEIGHT * zoom_scale)
-                
                 if is_zoomed:
                     zoomed_surf = pygame.transform.smoothscale(main_surf, (new_w, new_h))
                     offset_x = 0 if speaker == "Wife" else WIDTH - new_w      
                     offset_y = -200 
-                else:
-                    zoomed_surf = main_surf
-                    offset_x, offset_y = 0, 0
+                else: zoomed_surf = main_surf; offset_x, offset_y = 0, 0
                 
                 if is_shaking:
-                    shake_intensity = 20 if emotion in ["slap", "punch"] else 8
-                    offset_x += random.randint(-shake_intensity, shake_intensity)
-                    offset_y += random.randint(-shake_intensity, shake_intensity)
+                    offset_x += random.randint(-15, 15); offset_y += random.randint(-15, 15)
                 
-                screen.fill((0,0,0))
-                screen.blit(zoomed_surf, (offset_x, offset_y))
+                screen.fill((0,0,0)); screen.blit(zoomed_surf, (offset_x, offset_y))
             else:
-                screen.fill((0,0,0))
-                screen.blit(main_surf, (0, 0))
+                screen.fill((0,0,0)); screen.blit(main_surf, (0, 0))
             
-            view = pygame.surfarray.array3d(screen)
-            view = view.transpose([1, 0, 2])
-            img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
-            video_writer.write(img_bgr)
+            view = pygame.surfarray.array3d(screen); view = view.transpose([1, 0, 2])
+            img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR); video_writer.write(img_bgr)
 
     laugh_frames = 2 * FPS 
     for f in range(laugh_frames):
         timer += 1
         draw_background(main_surf, loaded_bg)
-        for name, char in chars.items():
-            char.update()
-            char.draw(main_surf, False, "normal", timer, -1)
-        
-        screen.fill((0,0,0))
-        screen.blit(main_surf, (0, 0))
-        
-        view = pygame.surfarray.array3d(screen)
-        view = view.transpose([1, 0, 2])
-        img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
-        video_writer.write(img_bgr)
+        for name, char in chars.items(): char.update(); char.draw(main_surf, False, "normal", timer)
+        screen.fill((0,0,0)); screen.blit(main_surf, (0, 0))
+        view = pygame.surfarray.array3d(screen); view = view.transpose([1, 0, 2])
+        img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR); video_writer.write(img_bgr)
 
     video_writer.release()
     pygame.quit()
 
-    print("🎧 Merging Audio, BGM, and Laugh Track...")
+    print("🎧 Merging Audio & Video...")
     final_audio = concatenate_audioclips(audio_clips)
     
     if os.path.exists(LAUGH_FILE):
@@ -407,11 +314,11 @@ async def main():
 
     video_clip = VideoFileClip(temp_video_path)
     final_video = video_clip.set_audio(final_audio)
-
     final_video.write_videofile(final_video_path, codec="libx264", audio_codec="aac", fps=FPS, preset="ultrafast", logger=None)
     video_clip.close()
     
-    print(f"✅ ANIMATED VIDEO successfully saved at: {final_video_path}")
+    # 🟢 UPLOAD TO YOUTUBE
+    upload_to_youtube(final_video_path)
 
 if __name__ == "__main__":
     asyncio.run(main())
