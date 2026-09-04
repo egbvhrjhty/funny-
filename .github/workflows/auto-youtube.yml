@@ -1,6 +1,12 @@
-name: Funny Cartoon Video Generator (Test Mode)
+name: Auto YouTube Cartoon Generator (3 Times a Day)
 
 on:
+  schedule:
+    # ⏰ UTC Timing. Indian Time is UTC + 5:30
+    # 02:30 UTC = 08:00 AM IST
+    # 08:30 UTC = 02:00 PM IST
+    # 13:30 UTC = 07:00 PM IST
+    - cron: '30 2,8,13 * * *'
   workflow_dispatch:  # मैन्युअली रन करने के लिए
 
 jobs:
@@ -27,22 +33,24 @@ jobs:
     - name: Install Python Libraries
       run: |
         pip install --upgrade pip
-        pip install pygame moviepy==1.0.3 edge-tts numpy opencv-python-headless
+        pip install pygame moviepy==1.0.3 edge-tts numpy opencv-python-headless google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+    - name: Load YouTube Tokens
+      env:
+        TOKEN_1: ${{ secrets.TOKEN_1 }}
+      run: |
+        mkdir -p tokens
+        if [ ! -z "$TOKEN_1" ]; then echo "$TOKEN_1" | base64 -d > tokens/token1.json; fi
+        echo "✅ YouTube Token Load हो गया!"
 
     - name: Run Cartoon Video Bot
       run: |
         python bot.py
-
-    - name: Upload Video for Download
-      uses: actions/upload-artifact@v4
-      with:
-        name: Cartoon-Joke-Video
-        path: output/FINAL_UPLOAD.mp4
 
     - name: Commit updated jokes.txt
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add jokes.txt
-        git commit -m "🤖 [TEST] जोक यूज़ किया गया और Text File अपडेट की गई" || echo "No changes to commit"
+        git commit -m "🤖 जोक यूज़ किया गया और Text File अपडेट की गई" || echo "No changes to commit"
         git push
