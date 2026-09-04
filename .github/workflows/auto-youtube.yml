@@ -1,0 +1,49 @@
+name: Test Story Video Generator
+
+on:
+  workflow_dispatch:  # इससे आप जब चाहें मैन्युअली (Run Workflow) बटन दबाकर चला सकते हैं
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150 
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg imagemagick
+        sudo sed -i 's/rights="none"/rights="read|write"/' /etc/ImageMagick-6/policy.xml
+
+    - name: Install Python Libraries
+      run: |
+        pip install --upgrade pip
+        pip install moviepy==1.0.3 edge-tts numpy Pillow==9.5.0 imageio-ffmpeg
+
+    - name: Run Story Bot (Test Mode)
+      run: |
+        python bot.py
+
+    - name: Upload Video for Download
+      uses: actions/upload-artifact@v4
+      with:
+        name: My-Story-Video
+        path: output/FINAL_UPLOAD.mp4
+
+    - name: Commit updated stories.txt
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add stories.txt
+        git commit -m "🤖 [TEST] कहानी यूज़ की गई और Text File अपडेट की गई" || echo "No changes to commit"
+        git push
