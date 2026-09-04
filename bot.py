@@ -44,7 +44,6 @@ async def download_voices(story_lines):
     for i, line in enumerate(story_lines):
         filename = os.path.join(TEMP_FOLDER, f"temp_audio_{i}.mp3")
         line["audio"] = filename
-        # 🟢 वॉल्यूम +50% बढ़ाया गया है
         communicate = edge_tts.Communicate(line["text"], line["voice"], rate=line["rate"], pitch=line["pitch"], volume="+50%")
         await communicate.save(filename)
 
@@ -124,11 +123,12 @@ class Character:
                 self.is_blinking = False
                 self.blink_timer = 0
 
-    def draw(self, surf, is_talking, emotion, timer):
+    # 🟢 बग फिक्स: timer अब हमेशा पास होगा ताकि मुंह सही से हिले!
+    def draw(self, surf, is_talking, emotion, timer, is_action_time):
         x, y = int(self.pos[0]), int(self.pos[1])
         
-        # 🟢 Character jump logic
-        if emotion in ["shock", "slap", "punch"] and not is_talking: 
+        # जंप (Jump) सिर्फ SFX/एक्शन के समय होगा
+        if emotion in ["shock", "slap", "punch", "funny"] and is_action_time: 
             y -= abs(math.sin(timer * 0.8)) * 40 
             
         body_y = y 
@@ -140,7 +140,7 @@ class Character:
         pygame.draw.rect(surf, self.color, (x-60, body_y, 120, 160), border_radius=30)
         pygame.draw.rect(surf, (20,20,20), (x-60, body_y, 120, 160), 6, border_radius=30)
 
-        if emotion in ["angry", "slap"] and is_talking: arm_swing = math.sin(timer * 2.0) * 40
+        if emotion in ["angry", "slap"] and is_action_time: arm_swing = math.sin(timer * 2.0) * 40
         pygame.draw.line(surf, (20,20,20), (x - 60, body_y + 50), (x - 90, body_y + 90 + arm_swing), 12)
         pygame.draw.line(surf, (20,20,20), (x + 60, body_y + 50), (x + 90, body_y + 90 - arm_swing), 12)
 
@@ -222,7 +222,6 @@ async def main():
 
         if sfx_path:
             sfx_clip = AudioFileClip(sfx_path).fx(afx.volumex, 1.8)
-            # 🟢 SFX starts exactly when speech ends!
             mixed_audio = CompositeAudioClip([
                 speech_clip.set_start(0), 
                 sfx_clip.set_start(speech_clip.duration)
@@ -253,20 +252,17 @@ async def main():
 
         for f in range(frames_to_render):
             timer += 1
-            # 🟢 Mouth movement strict limit
             is_talking_now = f < speech_frames
-            # 🟢 Camera/Reaction action time (When SFX plays at the end)
             is_action_time = f >= speech_frames
             
             draw_background(main_surf, loaded_bg)
                 
             for name, char in chars.items():
                 is_talking = (name == speaker and is_talking_now)
-                # Show emotion throughout, but jump/react during action time
                 char.update()
-                char.draw(main_surf, is_talking, emotion, timer if is_action_time else 0)
+                # 🟢 बग फिक्स: timer पास किया गया ताकि मुंह सही से हिले!
+                char.draw(main_surf, is_talking, emotion if name == speaker else "normal", timer, is_action_time)
                 
-            # 🟢 Camera Movement exactly at SFX time
             is_zoomed = "zoom" in camera_cmd and is_action_time
             is_shaking = "shake" in camera_cmd and is_action_time
             
@@ -298,14 +294,13 @@ async def main():
             img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
             video_writer.write(img_bgr)
 
-    # Laugh Track frames (No text, just character standing)
     laugh_frames = 2 * FPS 
     for f in range(laugh_frames):
         timer += 1
         draw_background(main_surf, loaded_bg)
         for name, char in chars.items():
             char.update()
-            char.draw(main_surf, False, "normal", timer)
+            char.draw(main_surf, False, "normal", timer, False)
         
         screen.fill((0,0,0))
         screen.blit(main_surf, (0, 0))
