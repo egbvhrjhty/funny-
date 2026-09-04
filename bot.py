@@ -37,7 +37,7 @@ char_colors = {
 }
 
 # ==========================================
-# 2. AUDIO GENERATION 
+# 2. AUDIO GENERATION
 # ==========================================
 async def download_voices(story_lines):
     print("🎙️ Generating AI Voices...")
@@ -48,7 +48,7 @@ async def download_voices(story_lines):
         await communicate.save(filename)
 
 # ==========================================
-# 3. TEXT PARSING 
+# 3. TEXT PARSING (READING PROMPTS)
 # ==========================================
 def fetch_and_delete_first_joke():
     if not os.path.exists(TEXT_FILE_PATH): return None
@@ -98,7 +98,7 @@ def fetch_and_delete_first_joke():
     return story_data
 
 # ==========================================
-# 4. DRAWING FUNCTIONS
+# 4. DRAWING FUNCTIONS (WITH REAL ANIMATION)
 # ==========================================
 def draw_background(surf, bg_img):
     if bg_img: surf.blit(bg_img, (0, 0))
@@ -123,63 +123,127 @@ class Character:
                 self.is_blinking = False
                 self.blink_timer = 0
 
-    def draw(self, surf, is_talking, emotion, timer, is_action_time):
-        x, y = int(self.pos[0]), int(self.pos[1])
+    def draw(self, surf, is_talking, emotion, timer, action_frame):
+        world_x, world_y = int(self.pos[0]), int(self.pos[1])
         
-        # कैरेक्टर का उछलना (Jump) सिर्फ SFX के समय (Last में) होगा
-        if emotion in ["shock", "slap", "punch", "funny"] and is_action_time: 
-            y -= abs(math.sin(timer * 0.8)) * 40 
-            
-        body_y = y 
+        # 🟢 Character के लिए अलग Surface ताकि हम उसे घुमा (Rotate/Fall) सकें
+        char_surf = pygame.Surface((350, 450), pygame.SRCALPHA)
+        cx, cy = 175, 250  # Center position
+
+        angle = 0
+        y_off = 0
+        is_hitting = False
+        hit_dir = 1 if not self.flip else -1
+        
+        face_color = (255, 120, 120) if emotion in ["angry", "slap", "punch", "victim"] else (255, 220, 180)
+
+        # ==========================================
+        # 🟢 ANIMATION LOGIC (ACTION TIMING)
+        # ==========================================
+        if action_frame >= 0:
+            # 1. मारने वाला (Attacker)
+            if emotion in ["slap", "punch"]:
+                if action_frame < 10:  # हाथ आगे बढ़ेगा
+                    is_hitting = True
+
+            # 2. पिटने वाला (Victim - Falling & Getting up)
+            elif emotion == "victim":
+                face_color = (255, 100, 100) # गाल लाल हो जाएगा
+                if action_frame < 10:
+                    # गिरना (Falling)
+                    progress = action_frame / 10.0
+                    angle = -90 * progress if self.flip else 90 * progress
+                    y_off = 100 * progress
+                elif action_frame < 30:
+                    # ज़मीन पर पड़े रहना (Down)
+                    angle = -90 if self.flip else 90
+                    y_off = 100
+                elif action_frame < 45:
+                    # वापस उठना (Getting back up)
+                    progress = (action_frame - 30) / 15.0
+                    angle = (-90 if self.flip else 90) * (1.0 - progress)
+                    y_off = 100 * (1.0 - progress)
+
+            # 3. डरने वाला (Shock - Jumping)
+            elif emotion == "shock":
+                if action_frame < 20:
+                    y_off = -abs(math.sin(action_frame * 0.5)) * 60
+
+        # ==========================================
+        # 🟢 DRAWING ON LOCAL SURFACE
+        # ==========================================
+        # Shadow (Draw directly on main screen)
+        pygame.draw.ellipse(surf, (0,0,0,80), (world_x-70, world_y+180, 140, 30))
+
+        # Body & Legs
+        pygame.draw.line(char_surf, (20,20,20), (cx - 30, cy + 160), (cx - 30, cy + 190), 12)
+        pygame.draw.line(char_surf, (20,20,20), (cx + 30, cy + 160), (cx + 30, cy + 190), 12)
+        pygame.draw.rect(char_surf, self.color, (cx-60, cy, 120, 160), border_radius=30)
+        pygame.draw.rect(char_surf, (20,20,20), (cx-60, cy, 120, 160), 6, border_radius=30)
+
+        # Arms
         arm_swing = math.sin(timer * 0.5) * 20 if is_talking else 0
+        if emotion == "angry" and is_talking: arm_swing = math.sin(timer * 2.0) * 40
         
-        pygame.draw.ellipse(surf, (0,0,0,80), (x-70, self.pos[1]+180, 140, 30))
-        pygame.draw.line(surf, (20,20,20), (x - 30, body_y + 160), (x - 30, self.pos[1] + 190), 12)
-        pygame.draw.line(surf, (20,20,20), (x + 30, body_y + 160), (x + 30, self.pos[1] + 190), 12)
-        pygame.draw.rect(surf, self.color, (x-60, body_y, 120, 160), border_radius=30)
-        pygame.draw.rect(surf, (20,20,20), (x-60, body_y, 120, 160), 6, border_radius=30)
+        if is_hitting:
+            # 🟢 मारने वाला हाथ आगे की तरफ!
+            pygame.draw.line(char_surf, (20,20,20), (cx, cy + 50), (cx + (120 * hit_dir), cy + 40), 15)
+        else:
+            pygame.draw.line(char_surf, (20,20,20), (cx - 60, cy + 50), (cx - 90, cy + 90 + arm_swing), 12)
+            pygame.draw.line(char_surf, (20,20,20), (cx + 60, cy + 50), (cx + 90, cy + 90 - arm_swing), 12)
 
-        if emotion in ["angry", "slap"] and is_talking: arm_swing = math.sin(timer * 2.0) * 40
-        pygame.draw.line(surf, (20,20,20), (x - 60, body_y + 50), (x - 90, body_y + 90 + arm_swing), 12)
-        pygame.draw.line(surf, (20,20,20), (x + 60, body_y + 50), (x + 90, body_y + 90 - arm_swing), 12)
-
+        # Head
         head_bounce = math.sin(timer * 1.5) * 5 if is_talking else 0
-        head_y = body_y - 60 + head_bounce
-        
-        face_color = (255, 120, 120) if emotion in ["angry", "slap"] else (255, 220, 180)
-        pygame.draw.circle(surf, face_color, (x, head_y), 70)
-        pygame.draw.circle(surf, (20,20,20), (x, head_y), 70, 6)
+        head_y = cy - 60 + head_bounce
+        pygame.draw.circle(char_surf, face_color, (cx, head_y), 70)
+        pygame.draw.circle(char_surf, (20,20,20), (cx, head_y), 70, 6)
 
-        eye_w, eye_h = 20, (4 if self.is_blinking else 30)
-        look_offset = -10 if self.flip else 10
-        if emotion in ["shock", "slap", "punch"]: eye_h = 50
+        # Eyes
+        look = -10 if self.flip else 10
+        eye_h = 4 if self.is_blinking else 30
         
-        pygame.draw.ellipse(surf, (20,20,20), (x - 30 + look_offset, head_y - 20, eye_w, eye_h))
-        pygame.draw.ellipse(surf, (20,20,20), (x + 10 + look_offset, head_y - 20, eye_w, eye_h))
-        
+        if emotion == "victim" and 0 <= action_frame < 45:
+            # 🟢 पिटने के बाद चकराती (Dizzy ❌) आँखें 
+            pygame.draw.line(char_surf, (20,20,20), (cx-35+look, head_y-30), (cx-15+look, head_y-10), 5)
+            pygame.draw.line(char_surf, (20,20,20), (cx-15+look, head_y-30), (cx-35+look, head_y-10), 5)
+            
+            pygame.draw.line(char_surf, (20,20,20), (cx+5+look, head_y-30), (cx+25+look, head_y-10), 5)
+            pygame.draw.line(char_surf, (20,20,20), (cx+25+look, head_y-30), (cx+5+look, head_y-10), 5)
+        else:
+            if emotion in ["shock"]: eye_h = 50
+            pygame.draw.ellipse(char_surf, (20,20,20), (cx - 30 + look, head_y - 20, 20, eye_h))
+            pygame.draw.ellipse(char_surf, (20,20,20), (cx + 10 + look, head_y - 20, 20, eye_h))
+
+        # Expressions (Angry Vein / Sad Tear)
         if emotion in ["angry", "slap"]:
-            pygame.draw.line(surf, (20,20,20), (x - 40 + look_offset, head_y - 35), (x - 15 + look_offset, head_y - 15), 5)
-            pygame.draw.line(surf, (20,20,20), (x + 35 + look_offset, head_y - 35), (x + 10 + look_offset, head_y - 15), 5)
-            pygame.draw.line(surf, (200,0,0), (x + 20, head_y - 50), (x + 40, head_y - 30), 4)
-            pygame.draw.line(surf, (200,0,0), (x + 40, head_y - 50), (x + 20, head_y - 30), 4)
+            pygame.draw.line(char_surf, (20,20,20), (cx - 40 + look, head_y - 35), (cx - 15 + look, head_y - 15), 5)
+            pygame.draw.line(char_surf, (20,20,20), (cx + 35 + look, head_y - 35), (cx + 10 + look, head_y - 15), 5)
 
         if emotion in ["sad", "cry"]: 
-            pygame.draw.ellipse(surf, (0, 191, 255), (x + 30 + look_offset, head_y - 5, 12, 20))
+            pygame.draw.ellipse(char_surf, (0, 191, 255), (cx + 30 + look, head_y - 5, 12, 20))
 
-        # 🟢 मुँह की कोडिंग: is_talking False होते ही तुरंत बंद हो जाएगा
+        # Mouth (0.0 sec Sync)
         if is_talking:
             m_size = abs(math.sin(timer * 1.5)) * 30 + 5
             if emotion in ["shock", "slap"]: m_size = 45
-            if emotion == "angry": m_size = 40
-            pygame.draw.ellipse(surf, (180, 0, 0), (x - 20 + look_offset, head_y + 25, 40, m_size))
+            pygame.draw.ellipse(char_surf, (180, 0, 0), (cx - 20 + look, head_y + 25, 40, m_size))
         else:
-            pygame.draw.line(surf, (20,20,20), (x - 15 + look_offset, head_y + 35), (x + 15 + look_offset, head_y + 35), 6)
+            pygame.draw.line(char_surf, (20,20,20), (cx - 15 + look, head_y + 35), (cx + 15 + look, head_y + 35), 6)
+
+        # 🟢 ROTATE AND BLIT ON MAIN SCREEN (गिरने का इफ़ेक्ट)
+        if angle != 0:
+            rotated_surf = pygame.transform.rotate(char_surf, angle)
+            new_rect = rotated_surf.get_rect(center=(world_x, world_y + y_off))
+            surf.blit(rotated_surf, new_rect.topleft)
+        else:
+            surf.blit(char_surf, (world_x - cx, world_y + y_off - cy))
+
 
 # ==========================================
 # 5. MAIN EXECUTION
 # ==========================================
 async def main():
-    print("🚀 Auto Video Generator Started...")
+    print("🚀 Auto DIRECTOR Video Generator Started...")
     
     current_story = fetch_and_delete_first_joke()
     if not current_story: return
@@ -205,15 +269,13 @@ async def main():
 
     chars = {speaker: Character(speaker, color) for speaker, color in char_colors.items()}
     audio_clips = []
-    timer = 0
     
     for idx, line in enumerate(current_story):
         speech_clip = AudioFileClip(line["audio"]).fx(afx.volumex, 4.0)
         
-        # 🟢 SILENCE TRIMMER (मूह 1 सेकंड हिलने वाले बग का इलाज)
-        # AI Voice फाइल के लास्ट में 0.5 सेकंड की शांति जोड़ देता है। हम उसे काट रहे हैं।
+        # 🟢 SILENCE TRIMMER (मूह 1 सेकंड हिलने वाले बग का परमानेंट फिक्स)
         trim_amount = 0.5 
-        if speech_clip.duration > (trim_amount + 0.2):
+        if speech_clip.duration > (trim_amount + 0.1):
             speech_clip = speech_clip.subclip(0, speech_clip.duration - trim_amount)
             
         emotion = line.get("emotion", "normal")
@@ -229,9 +291,10 @@ async def main():
             sfx_clip = AudioFileClip(sfx_path).fx(afx.volumex, 1.8)
             mixed_audio = CompositeAudioClip([
                 speech_clip.set_start(0), 
-                sfx_clip.set_start(speech_clip.duration) # SFX बिल्कुल आवाज़ खत्म होने पर बजेगा
+                sfx_clip.set_start(speech_clip.duration) 
             ])
-            line["total_dur"] = speech_clip.duration + sfx_clip.duration + 0.2
+            # गिरने और उठने के लिए कम से कम 1.5 सेकंड (45 frames) चाहिए
+            line["total_dur"] = speech_clip.duration + max(sfx_clip.duration, 1.5)
             line["speech_dur"] = speech_clip.duration
             audio_clips.append(mixed_audio)
         else:
@@ -240,6 +303,7 @@ async def main():
             audio_clips.append(speech_clip)
 
     print("🎥 Rendering Video Frames...")
+    timer = 0
     for idx, line in enumerate(current_story):
         speaker = line["speaker"]
         emotion = line.get("emotion", "normal")
@@ -258,19 +322,30 @@ async def main():
         for f in range(frames_to_render):
             timer += 1
             is_talking_now = f < speech_frames
-            is_action_time = f >= speech_frames
+            
+            # Action Frame 0 से शुरू होगा जब बोलना बंद होगा!
+            action_frame = f - speech_frames
             
             draw_background(main_surf, loaded_bg)
                 
             for name, char in chars.items():
                 is_talking = (name == speaker and is_talking_now)
                 char.update()
-                char.draw(main_surf, is_talking, emotion if name == speaker else "normal", timer, is_action_time)
                 
-            # 🟢 CAMERA ZOOM / SHAKE LOGIC (Starting of the voice)
-            # अगर प्रॉम्प्ट में zoom या shake है, तो वो आवाज़ के साथ (is_talking_now) चलेगा
-            is_zoomed = "zoom" in camera_cmd and is_talking_now
-            is_shaking = "shake" in camera_cmd and is_talking_now
+                # 🟢 Determine Emotion for drawing
+                char_emotion = "normal"
+                if name == speaker: 
+                    char_emotion = emotion
+                elif emotion in ["slap", "punch"]:
+                    # जो बोल नहीं रहा, वो Victim (पिटने वाला) है!
+                    char_emotion = "victim"
+                
+                char.draw(main_surf, is_talking, char_emotion, timer, action_frame)
+                
+            # 🟢 CAMERA LOGIC 
+            is_action_time = (action_frame >= 0) # कैमरा इफ़ेक्ट भी लास्ट में होगा!
+            is_zoomed = "zoom" in camera_cmd and is_action_time
+            is_shaking = "shake" in camera_cmd and is_action_time
             
             if is_zoomed or is_shaking:
                 zoom_scale = 1.3 if is_zoomed else 1.0
@@ -285,7 +360,7 @@ async def main():
                     offset_x, offset_y = 0, 0
                 
                 if is_shaking:
-                    shake_intensity = 15 if emotion in ["slap", "punch"] else 8
+                    shake_intensity = 20 if emotion in ["slap", "punch"] else 8
                     offset_x += random.randint(-shake_intensity, shake_intensity)
                     offset_y += random.randint(-shake_intensity, shake_intensity)
                 
@@ -306,7 +381,7 @@ async def main():
         draw_background(main_surf, loaded_bg)
         for name, char in chars.items():
             char.update()
-            char.draw(main_surf, False, "normal", timer, False)
+            char.draw(main_surf, False, "normal", timer, -1)
         
         screen.fill((0,0,0))
         screen.blit(main_surf, (0, 0))
@@ -336,7 +411,7 @@ async def main():
     final_video.write_videofile(final_video_path, codec="libx264", audio_codec="aac", fps=FPS, preset="ultrafast", logger=None)
     video_clip.close()
     
-    print(f"✅ CLEAN & PERFECT VIDEO successfully saved at: {final_video_path}")
+    print(f"✅ ANIMATED VIDEO successfully saved at: {final_video_path}")
 
 if __name__ == "__main__":
     asyncio.run(main())
