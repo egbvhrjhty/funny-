@@ -1,548 +1,452 @@
-Boy (normal): अरे सुन, तूने मेरे जूते काहे रंग दिए?
-Girl (funny, zoom): गुलाबी कर दिए, बड़े फुद्दू लग रहे थे!
-Boy (shock, shake): अरे पगली! ये 8 हजार के जूते थे!
-Girl (slap, zoom_shake): तो का हुआ? अब 8 हजार के गुलाबी फुद्दू हैं!
-
-=====
 Boy (normal): अरे मेरी जेब से 500 रुपइया किसने निकाले?
 Girl (funny, zoom): मैंने निकाले!
 Boy (shock, shake): काहे निकाले रे?
 Girl (slap, zoom_shake): तेरी जेब में पड़े-पड़े सड़ रहे थे, मैंने काम पे लगा दिए!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक पे अपना नाम काहे लिख दिया?
 Girl (funny, zoom): ताकि कोई उठा के न ले जाए!
 Boy (shock, shake): नाम लिखने से चोर रुक जाएगा का?
 Girl (slap, zoom_shake): चोर नहीं रुकेगा, पर लोग पढ़ के हँसते-हँसते बाइक छोड़ देंगे!
-
 =====
 Boy (normal): अरे मेरी थाली का आधा खाना कहाँ गया?
 Girl (funny, zoom): पेट में चला गया!
 Boy (shock, shake): अरे वो मेरा खाना था बे!
 Girl (slap, zoom_shake): अब पेट में है, जा के निकाल ला अगर इतना ही तेरा है!
-
 =====
 Boy (normal): अरे तूने मेरा फोन काहे चेक किया?
 Girl (funny, zoom): देख रही थी कहीं कोई दूसरी छोरी तो नहीं!
 Boy (shock, shake): मिली कोई?
 Girl (slap, zoom_shake): ना मिली, बस 72 गेम मिले… तू आदमी है या मोबाइल का मजदूर?
-
 =====
 Boy (normal): अरे मेरी नई कमीज पे लिपस्टिक काहे लगा दी?
 Girl (funny, zoom): अपनी मुहर लगा दी!
 Boy (shock, shake): अरे लोग का कहेंगे?
 Girl (slap, zoom_shake): यही कि लड़का अपना है, पर अक्ल किराए की है!
-
 =====
 Boy (normal): अरे मेरी बाइक की चाबी कहाँ छुपाई?
 Girl (funny, zoom): ऐसी जगह धरी है जहाँ तू ढूँढता ही रह जाएगा!
 Boy (shock, shake): कहाँ बे?
 Girl (slap, zoom_shake): तेरी समझदारी के साथ… दोनों मिलेंगे ही नहीं!
-
 =====
 Boy (normal): अरे तूने मेरा महँगा हेडफोन काहे तोड़ दिया?
 Girl (funny, zoom): गुस्सा आ गया था!
 Boy (shock, shake): वो 15 हजार का था!
 Girl (slap, zoom_shake): तो गुस्सा 15 हजार का निकला, हिसाब बराबर!
-
 =====
 Boy (normal): अरे मेरी अलमारी आधी खाली काहे है?
 Girl (funny, zoom): कपड़े रख दिए अपने!
 Boy (shock, shake): अरे वो मेरी अलमारी है!
 Girl (slap, zoom_shake): थी तेरी… अब कपड़ों का कब्जा हो गया!
-
 =====
 Boy (normal): अरे मेरी चॉकलेट किसने खा ली?
 Girl (funny, zoom): मैंने!
 Boy (shock, shake): पूरी की पूरी?
 Girl (slap, zoom_shake): हाँ, आधी छोड़ती तो चींटियाँ खा जातीं… तुझसे ज्यादा समझदार हैं वो!
-
 =====
 Boy (normal): अरे तूने मेरी फोटो पे मूँछ काहे बना दी?
 Girl (funny, zoom): देख रही थी शादी के बाद कैसा लगेगा!
 Boy (shock, shake): कैसी लगी?
 Girl (slap, zoom_shake): फोटो में तो ठीक है, असल में अभी भी लौंडा ही लग रहा है!
-
 =====
 Boy (normal): अरे मेरे कमरे में गुलाबी पर्दे काहे लगा दिए?
 Girl (funny, zoom): मन को भा गए!
 Boy (shock, shake): पर कमरा तो मेरा है!
 Girl (slap, zoom_shake): कमरा तेरा होगा, पर पर्दे लगाने का हक मेरा!
-
 =====
 Boy (normal): अरे मेरी बाइक की सीट पे फूल काहे बांध दिए?
 Girl (funny, zoom): सजाई है!
 Boy (shock, shake): बाइक है, बारात नहीं!
 Girl (slap, zoom_shake): तू चला तो बारात अपने आप बन जाएगी!
-
 =====
 Boy (normal): अरे मेरी जेब में 10 रुपइया काहे रखा है?
 Girl (funny, zoom): तेरे लिए!
 Boy (shock, shake): सिर्फ 10?
 Girl (slap, zoom_shake): हाँ, तेरी औकात देखकर बजट बनाया है!
-
 =====
 Boy (normal): अरे तूने मेरा पासवर्ड कैसे जान लिया?
 Girl (funny, zoom): तू बड़ा सीधा है रे!
 Boy (shock, shake): क्या था पासवर्ड?
 Girl (slap, zoom_shake): “1234”… तेरे दिमाग में भी शायद यही चार नंबर हैं!
-
 =====
 Boy (normal): अरे तूने मेरी नई पैंट में छेद काहे कर दिया?
 Girl (funny, zoom): फैशन बना दिया!
 Boy (shock, shake): 5 हजार की पैंट थी!
 Girl (slap, zoom_shake): अब 5 हजार की हवा भी खा रही है!
-
 =====
 Boy (normal): अरे मेरी घड़ी कहाँ गई?
 Girl (funny, zoom): बेच दी!
 Boy (shock, shake): अरे 20 हजार की थी!
 Girl (slap, zoom_shake): अब 20 हजार मेरे हैं, टाइम तू मोबाइल में देख!
-
 =====
 Boy (normal): अरे मेरे कमरे में CCTV काहे लगा दिया?
 Girl (funny, zoom): निगरानी के लिए!
 Boy (shock, shake): चोरों के लिए?
 Girl (slap, zoom_shake): ना रे, तेरी हरकतों के लिए… चोर तो फिर भी शरीफ हैं!
-
 =====
 Boy (normal): अरे मेरी शर्ट पे “मेरा आदमी” काहे लिख दिया?
 Girl (funny, zoom): ताकि गाँव में कोई कन्फ्यूजन ना हो!
 Boy (shock, shake): मैं कब तेरा आदमी बना?
 Girl (slap, zoom_shake): जिस दिन तूने मेरे सामने “हाँ” बोला था, भूल गया क्या?
-
 =====
 Boy (normal): अरे तूने मेरी बाइक का रंग काहे बदल दिया?
 Girl (funny, zoom): पुराना रंग बोर कर रहा था!
 Boy (shock, shake): अब पूरी गुलाबी कर दी?
 Girl (slap, zoom_shake): हाँ, अब दूर से ही पता चलेगा कि मालिक घर पे नहीं है!
-
 =====
 Boy (normal): अरे मेरा लंच कहाँ गया?
 Girl (funny, zoom): खा गई!
 Boy (shock, shake): अब मैं क्या खाऊँगा?
 Girl (slap, zoom_shake): डिब्बा खा ले… खाली तो वही बचा है!
-
 =====
 Boy (normal): अरे तूने मेरी किताब फाड़ काहे दी?
 Girl (funny, zoom): पढ़ाई कम करने के लिए!
 Boy (shock, shake): मेरी पूरी किताब थी!
 Girl (slap, zoom_shake): अब आधी पढ़ाई होगी, आधा रिजल्ट आएगा… बराबरी!
-
 =====
 Boy (normal): अरे मेरे फोन में अपना फोटो काहे लगाया?
 Girl (funny, zoom): रोज देखेगा तो याद रहेगा!
 Boy (shock, shake): अरे फोटो तो तेरी नहीं, बिल्ली की है!
 Girl (slap, zoom_shake): बिल्ली मेरी शक्ल से ज्यादा भरोसेमंद है!
-
 =====
 Boy (normal): अरे मेरी बाइक की चाबी फ्रिज में काहे पड़ी है?
 Girl (funny, zoom): ठंडी कर रही थी!
 Boy (shock, shake): चाबी भी गरम होती है का?
 Girl (slap, zoom_shake): तेरी बातें सुनके तो दिमाग जरूर गरम होता है!
-
 =====
 Boy (normal): अरे तूने मेरा जिम वाला खाना काहे खा लिया?
 Girl (funny, zoom): प्रोटीन अच्छा लगा!
 Boy (shock, shake): अब मैं क्या खाऊँ?
 Girl (slap, zoom_shake): तू मेरा प्यार खा… खाना तो मैं खा गई!
-
 =====
 Boy (normal): अरे मेरी कुर्सी पे “Reserved” काहे लिखा है?
 Girl (funny, zoom): मेरे लिए!
 Boy (shock, shake): अरे कुर्सी मेरी है!
 Girl (slap, zoom_shake): कुर्सी तेरी, कब्जा मेरा!
-
 =====
 Boy (normal): अरे तूने मेरे जूते पे अपना नाम काहे लिखा?
 Girl (funny, zoom): ब्रांड बना दिया!
 Boy (shock, shake): जूते मेरे हैं!
 Girl (slap, zoom_shake): पैसे तेरे, पहचान मेरी!
-
 =====
 Boy (normal): अरे तूने मेरा फोन फॉर्मेट काहे कर दिया?
 Girl (funny, zoom): सफाई कर दी!
 Boy (shock, shake): मेरी सारी फोटो उड़ गईं!
 Girl (slap, zoom_shake): फोन चमक रहा है ना? दुख बाद में करना!
-
 =====
 Boy (normal): अरे तूने मेरे कमरे का लॉक काहे बदल दिया?
 Girl (funny, zoom): सुरक्षा के लिए!
 Boy (shock, shake): चाबी कहाँ है?
 Girl (slap, zoom_shake): मेरे पास… अब तू बाहर से सुरक्षा कर!
-
 =====
 Boy (normal): अरे मेरी चाय में नमक काहे डाला?
 Girl (funny, zoom): गलती से!
 Boy (shock, shake): चीनी कहाँ है?
 Girl (slap, zoom_shake): वो भी गलती से तेरे पेट में चली गई!
-
 =====
 Boy (normal): अरे मेरी नई टोपी पे फूल काहे लगा दिया?
 Girl (funny, zoom): क्यूट लग रहा है!
 Boy (shock, shake): गाँव वाले हँसेंगे!
 Girl (slap, zoom_shake): हँसने दे, कम से कम तुझे देखकर पहली बार खुश तो होंगे!
-
 =====
 Boy (normal): अरे मेरी बाइक पे “धीरे चलो” काहे लिखा है?
 Girl (funny, zoom): तेरी ड्राइविंग से डर लगता है!
 Boy (shock, shake): मैं तो 40 की स्पीड से चलाता हूँ!
 Girl (slap, zoom_shake): बाइक 40 पे चलती है, तू 4 दिमाग पे!
-
 =====
 Boy (normal): अरे मेरा तकिया काहे चुरा लिया?
 Girl (funny, zoom): तेरी याद आती थी!
 Boy (shock, shake): तकिया देखकर मेरी याद आती है?
 Girl (slap, zoom_shake): तेरी शक्ल नहीं देखनी थी, तकिया ही काफी था!
-
 =====
 Boy (normal): अरे मेरी नई घड़ी पे खरोंच किसने मारी?
 Girl (funny, zoom): मैंने!
 Boy (shock, shake): 30 हजार की थी!
 Girl (slap, zoom_shake): अब लिमिटेड एडिशन है… ज्यादा रो मत, कीमत बढ़ गई!
-
 =====
 Boy (normal): अरे तूने मेरा गेम अकाउंट काहे डिलीट किया?
 Girl (funny, zoom): तू गेम में बहुत घुसा रहता था!
 Boy (shock, shake): उसमें तीन साल की मेहनत थी!
 Girl (slap, zoom_shake): अब तीन साल मेरे साथ बैठ, मेहनत वसूल हो जाएगी!
-
 =====
 Boy (normal): अरे तूने मेरी कार पे “सॉरी” काहे लिखा?
 Girl (funny, zoom): गलती हो गई थी!
 Boy (shock, shake): क्या किया तूने?
 Girl (slap, zoom_shake): बता दूँगी तो “सॉरी” की इज्जत चली जाएगी!
-
 =====
 Boy (normal): अरे मेरे बैग में ईंट काहे रख दी?
 Girl (funny, zoom): जिम का सामान है!
 Boy (shock, shake): ईंट भी जिम में चलती है?
 Girl (slap, zoom_shake): तू वजन उठाने जाता है ना? आज घर ही उठा के ले जा!
-
 =====
 Boy (normal): अरे तूने मेरी शर्ट पर अपना फोन नंबर काहे लिखा?
 Girl (funny, zoom): अगर तू खो गया तो!
 Boy (shock, shake): मेरा नंबर क्यों नहीं लिखा?
 Girl (slap, zoom_shake): खोना तू है, ढूँढना मुझे है!
-
 =====
 Boy (normal): अरे तूने मेरा फ्रिज लॉक काहे कर दिया?
 Girl (funny, zoom): डाइट करवा रही हूँ!
 Boy (shock, shake): चाबी कहाँ है?
 Girl (slap, zoom_shake): मेरे पास… और चाबी से ज्यादा भूख भी मेरे पास है!
-
 =====
 Boy (normal): अरे तूने मेरी फोटो उल्टी काहे लगा दी?
 Girl (funny, zoom): सीधी लगाती तो डर लग जाता!
 Boy (shock, shake): मेरी शक्ल इतनी खराब है?
 Girl (slap, zoom_shake): शक्ल नहीं रे, उम्मीद खराब है!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक की सीट पे टेडी काहे बाँध दिया?
 Girl (funny, zoom): अकेले बैठने में डर लगता है!
 Boy (shock, shake): टेडी को बाइक पे बैठाएगी?
 Girl (slap, zoom_shake): हाँ, कम से कम वो रास्ते भर शिकायत नहीं करेगा!
-
 =====
 Boy (normal): अरे मेरी जेब में गुलाब काहे रखा?
 Girl (funny, zoom): प्यार का निशान है!
 Boy (shock, shake): काँटे इतने सारे क्यों हैं?
 Girl (slap, zoom_shake): प्यार मेरा है रे, दर्द भी पैकेज में आएगा!
-
 =====
 Boy (normal): अरे तूने मेरा लंच आधा काहे खा लिया?
 Girl (funny, zoom): आधा ही तो खाया!
 Boy (shock, shake): डिब्बा तो पूरा खाली है!
 Girl (slap, zoom_shake): तू गणित पढ़ा है या बस स्कूल की फीस भरी थी?
-
 =====
 Boy (normal): अरे तूने मेरी नई हुडी काहे पहन ली?
 Girl (funny, zoom): ठंड लग रही थी!
 Boy (shock, shake): वो मेरी फेवरेट थी!
 Girl (slap, zoom_shake): अब मेरी फेवरेट है… दुखी मत हो, याद में फोटो दे दूँगी!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक की नंबर प्लेट पे दिल काहे बनाया?
 Girl (funny, zoom): प्यार दिखाया है!
 Boy (shock, shake): पुलिस ने पकड़ लिया तो?
 Girl (slap, zoom_shake): बोल देंगे प्यार में कानून भी थोड़ा नरम होना चाहिए!
-
 =====
 Boy (normal): अरे तूने मेरी किताब में चॉकलेट काहे रखी?
 Girl (funny, zoom): पढ़ते-पढ़ते भूख लगेगी!
 Boy (shock, shake): चॉकलेट तो पिघल गई!
 Girl (slap, zoom_shake): अब किताब पढ़ और चॉकलेट चाट… दोनों काम एक साथ!
-
 =====
 Boy (normal): अरे तूने मेरे जूते में पानी काहे भर दिया?
 Girl (funny, zoom): पैर ठंडे रखने के लिए!
 Boy (shock, shake): जूते हैं, बाल्टी नहीं!
 Girl (slap, zoom_shake): तेरे पैर भी कमाल के हैं, बाल्टी में भी घुस जाएंगे!
-
 =====
 Boy (normal): अरे तूने मेरा फोन साइलेंट काहे किया?
 Girl (funny, zoom): शांति चाहिए थी!
 Boy (shock, shake): मेरा फोन है!
 Girl (slap, zoom_shake): फोन तेरा है, चैन मेरा!
-
 =====
 Boy (normal): अरे तूने मेरे लैपटॉप का नाम “बेबी” काहे रख दिया?
 Girl (funny, zoom): प्यार से!
 Boy (shock, shake): लैपटॉप है रे!
 Girl (slap, zoom_shake): हाँ, तुझसे ज्यादा काम का है इसलिए!
-
 =====
 Boy (normal): अरे तूने मेरे कमरे की लाइट काहे बंद कर दी?
 Girl (funny, zoom): बिजली बचा रही हूँ!
 Boy (shock, shake): मैं पढ़ रहा था!
 Girl (slap, zoom_shake): अँधेरे में पढ़ ले… ज्ञान आँख से नहीं, दिमाग से आता है!
-
 =====
 Boy (normal): अरे तूने मेरी पिज्जा पे अपना नाम काहे लिखा?
 Girl (funny, zoom): हिस्सा मेरा है!
 Boy (shock, shake): पिज्जा मैंने मंगाया था!
 Girl (slap, zoom_shake): ऑर्डर तूने किया, कब्जा मैंने किया!
-
 =====
 Boy (normal): अरे तूने मेरा कैमरा काहे छुपा दिया?
 Girl (funny, zoom): तेरी फोटो खींचने से तंग आ गई!
 Boy (shock, shake): मैं फोटोग्राफर हूँ!
 Girl (slap, zoom_shake): आज से तू कैमरा ढूँढने वाला है!
-
 =====
 Boy (normal): अरे तूने मेरे जूते पे ग्लिटर काहे लगाया?
 Girl (funny, zoom): चमकना चाहिए!
 Boy (shock, shake): मैं लड़का हूँ!
 Girl (slap, zoom_shake): लड़का है तो क्या हुआ, जूते की तो इज्जत है!
-
 =====
 Boy (normal): अरे तूने मेरी घड़ी का टाइम आगे काहे कर दिया?
 Girl (funny, zoom): ताकि तू जल्दी आए!
 Boy (shock, shake): पूरा एक घंटा आगे है!
 Girl (slap, zoom_shake): अब कम से कम जिंदगी में एक घंटा आगे तो रहेगा!
-
 =====
 Boy (normal): अरे तूने मेरी फोटो के नीचे “Future Husband” काहे लिखा?
 Girl (funny, zoom): गलती से!
 Boy (shock, shake): मिटा दे!
 Girl (slap, zoom_shake): अब गलती पसंद आ गई, मिटेगी नहीं!
-
 =====
 Boy (normal): अरे तूने मेरे पैसे शॉपिंग में काहे उड़ा दिए?
 Girl (funny, zoom): पैसे उड़ाए नहीं, कपड़े बनाए हैं!
 Boy (shock, shake): पूरे 10 हजार गए!
 Girl (slap, zoom_shake): तेरे 10 हजार गए, मेरे 10 कपड़े आए… हिसाब बराबर!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक धोने की बजाय पेंट काहे कर दी?
 Girl (funny, zoom): धोने से पुरानी ही रहती!
 Boy (shock, shake): पूरा रंग बदल दिया!
 Girl (slap, zoom_shake): अब बाइक नई, मालिक वही पुराना!
-
 =====
 Boy (normal): अरे तूने मेरे फोन में 500 सेल्फी काहे रखी हैं?
 Girl (funny, zoom): यादों के लिए!
 Boy (shock, shake): सारी मेरी हैं!
 Girl (slap, zoom_shake): हाँ, मेरी कॉमेडी की पूरी लाइब्रेरी है!
-
 =====
 Boy (normal): अरे तूने मेरी कुर्सी पे कुशन काहे रखा?
 Girl (funny, zoom): आराम के लिए!
 Boy (shock, shake): इतना मोटा कुशन क्यों?
 Girl (slap, zoom_shake): तेरी अक्ल पतली है, कम से कम कुर्सी मोटी हो!
-
 =====
 Boy (normal): अरे तूने मेरा हेलमेट गुलाबी काहे कर दिया?
 Girl (funny, zoom): स्टाइल के लिए!
 Boy (shock, shake): लोग हँसेंगे!
 Girl (slap, zoom_shake): हँसने दे, हेलमेट पहन के हँसने वाला तू पहला बंदा होगा!
-
 =====
 Boy (normal): अरे तूने मेरे फोन के कवर पे अपना नाम काहे लिख दिया?
 Girl (funny, zoom): ताकि फोन खोए तो मुझे मिले!
 Boy (shock, shake): फोन मेरा है!
 Girl (slap, zoom_shake): फोन तेरा है, लेकिन किस्मत मेरी है!
-
 =====
 Boy (normal): अरे तूने मेरी अलमारी पे “Girls Only” काहे लिख दिया?
 Girl (funny, zoom): ताकि कोई लड़का अंदर न आए!
 Boy (shock, shake): मैं भी नहीं?
 Girl (slap, zoom_shake): तू बाहर से अपना कपड़ा माँग लेना!
-
 =====
 Boy (normal): अरे तूने मेरी चाय इतनी मीठी काहे कर दी?
 Girl (funny, zoom): प्यार ज्यादा डाल दिया!
 Boy (shock, shake): चीनी कितनी डाली?
 Girl (slap, zoom_shake): प्यार की कीमत पूछता है? चीनी की नहीं!
-
 =====
 Boy (normal): अरे तूने मेरे कमरे में आईना काहे हटा दिया?
 Girl (funny, zoom): नजर लग रही थी!
 Boy (shock, shake): किसको?
 Girl (slap, zoom_shake): तुझे… खुद को देखकर ही रोज अकड़ता है!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक की सीट पे “नो एंट्री” काहे लिखा?
 Girl (funny, zoom): तेरे दोस्तों के लिए!
 Boy (shock, shake): बाइक मेरी है!
 Girl (slap, zoom_shake): बाइक तेरी, VIP सीट मेरी!
-
 =====
 Boy (normal): अरे तूने मेरे फोन की बैटरी 1% कैसे कर दी?
 Girl (funny, zoom): वीडियो देख रही थी!
 Boy (shock, shake): चार्जर कहाँ है?
 Girl (slap, zoom_shake): मेरे फोन में लगा है… तू मेरा वीडियो देख के चार्ज हो जा!
-
 =====
 Boy (normal): अरे तूने मेरी पैंट पे “बेकार खर्च” काहे लिखा?
 Girl (funny, zoom): सच्चाई लिखी है!
 Boy (shock, shake): ये 12 हजार की है!
 Girl (slap, zoom_shake): अब 12 हजार की बेइज्जती भी साथ में है!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक पे रिबन काहे बांधा?
 Girl (funny, zoom): गिफ्ट जैसी लग रही थी!
 Boy (shock, shake): मेरी बाइक है!
 Girl (slap, zoom_shake): तू भी तो गिफ्ट जैसा मिला था… खोलते ही पछतावा हुआ!
-
 =====
 Boy (normal): अरे तूने मेरा तकिया इतना बड़ा काहे कर दिया?
 Girl (funny, zoom): अच्छी नींद आएगी!
 Boy (shock, shake): इसमें तो मैं पूरा गायब हो जाऊँगा!
 Girl (slap, zoom_shake): वही तो चाहिए… कम से कम रात में चुप तो रहेगा!
-
 =====
 Boy (normal): अरे तूने मेरी शर्ट पे अपना सिग्नेचर काहे कर दिया?
 Girl (funny, zoom): लिमिटेड एडिशन बना दी!
 Boy (shock, shake): अब मैं इसे पहनूँगा कैसे?
 Girl (slap, zoom_shake): पहन लेना, लोग समझेंगे महँगी चीज है!
-
 =====
 Boy (normal): अरे तूने मेरा गेमिंग सेटअप गुलाबी काहे कर दिया?
 Girl (funny, zoom): क्यूट लग रहा है!
 Boy (shock, shake): पूरा प्रो सेटअप था!
 Girl (slap, zoom_shake): अब प्रो भी है और मेरी पसंद का भी!
-
 =====
 Boy (normal): अरे तूने मेरी फोटो पे क्रॉस काहे लगा दिया?
 Girl (funny, zoom): बुरी नजर हटाने के लिए!
 Boy (shock, shake): नजर मेरी फोटो को लगती है?
 Girl (slap, zoom_shake): नहीं, मुझे तेरी शक्ल से लगती है!
-
 =====
 Boy (normal): अरे तूने मेरे जूतों की लेस काहे काट दी?
 Girl (funny, zoom): नई लेने के लिए!
 Boy (shock, shake): पुरानी तो ठीक थी!
 Girl (slap, zoom_shake): ठीक थी तभी तो नई का बहाना बनाना पड़ा!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक की सीट काहे खोल दी?
 Girl (funny, zoom): देख रही थी अंदर क्या है!
 Boy (shock, shake): मिला कुछ?
 Girl (slap, zoom_shake): हाँ, तेरी किस्मत… वो भी खाली निकली!
-
 =====
 Boy (normal): अरे तूने मेरा वॉलेट लॉक काहे कर दिया?
 Girl (funny, zoom): पैसे बचाने के लिए!
 Boy (shock, shake): चाबी कहाँ है?
 Girl (slap, zoom_shake): शॉपिंग खत्म होने तक मेरे पास!
-
 =====
 Boy (normal): अरे तूने मेरी फोटो फ्रेम में काहे लगाई?
 Girl (funny, zoom): घर सजाना था!
 Boy (shock, shake): इतनी बड़ी फोटो क्यों?
 Girl (slap, zoom_shake): दीवार बड़ी थी, तेरी शक्ल छोटी पड़ रही थी!
-
 =====
 Boy (normal): अरे तूने मेरे जूते में गुलाब काहे रखा?
 Girl (funny, zoom): प्यार का तोहफा!
 Boy (shock, shake): पहनूँगा कैसे?
 Girl (slap, zoom_shake): प्यार में रास्ता नहीं दिखता, जूते में कैसे दिखेगा!
-
 =====
 Boy (normal): अरे तूने मेरी कार की सीट पे अपना नाम काहे लिखा?
 Girl (funny, zoom): रिजर्व कर दी!
 Boy (shock, shake): मैं कहाँ बैठूँगा?
 Girl (slap, zoom_shake): ड्राइवर बन के बैठ… मालिक तो मैं हूँ!
-
 =====
 Boy (normal): अरे तूने मेरा कमरा साफ किया?
 Girl (funny, zoom): हाँ!
 Boy (shock, shake): मेरा सामान कहाँ गया?
 Girl (slap, zoom_shake): सफाई में जो मिलता है, वो अपना… अब तू भी ढूँढ!
-
 =====
 Boy (normal): अरे तूने मेरी चप्पल में सिक्का काहे रखा?
 Girl (funny, zoom): किस्मत के लिए!
 Boy (shock, shake): चलूँगा कैसे?
 Girl (slap, zoom_shake): अमीर बनना है तो थोड़ा दर्द सहना पड़ेगा!
-
 =====
 Boy (normal): अरे तूने मेरा पासपोर्ट काहे छुपाया?
 Girl (funny, zoom): कहीं भाग न जाए!
 Boy (shock, shake): मैं कहाँ भागूँगा?
 Girl (slap, zoom_shake): यही तो देखना है… पासपोर्ट मिलते ही पता चलेगा!
-
 =====
 Boy (normal): अरे तूने मेरे बैग में छाता काहे रखा?
 Girl (funny, zoom): बारिश के लिए!
 Boy (shock, shake): आसमान तो एकदम साफ है!
 Girl (slap, zoom_shake): मौसम साफ है, मेरा मूड नहीं!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक का हॉर्न काहे निकाल दिया?
 Girl (funny, zoom): बहुत आवाज करता था!
 Boy (shock, shake): अब सामने वाला कैसे हटेगा?
 Girl (slap, zoom_shake): तेरी शक्ल देखकर खुद हट जाएगा!
-
 =====
 Boy (normal): अरे तूने मेरा फोन काहे छुपा दिया?
 Girl (funny, zoom): तुझे काम करना था!
 Boy (shock, shake): फोन के बिना काम कैसे होगा?
 Girl (slap, zoom_shake): जैसे शादी के बाद जिंदगी चलती है… पूछ के नहीं!
-
 =====
 Boy (normal): अरे तूने मेरी चॉकलेट पे “मेरा” काहे लिखा?
 Girl (funny, zoom): ताकि तू न खाए!
 Boy (shock, shake): फिर चॉकलेट कहाँ है?
 Girl (slap, zoom_shake): चॉकलेट खत्म, अब सिर्फ “मेरा” बचा है!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक का शीशा काहे तोड़ा?
 Girl (funny, zoom): खुद को देख-देख के अकड़ रहा था!
 Boy (shock, shake): शीशा 3 हजार का था!
 Girl (slap, zoom_shake): अकड़ 3 हजार में गई, सस्ता सौदा है!
-
 =====
 Boy (normal): अरे तूने मेरे कमरे में गुब्बारे काहे लगाए?
 Girl (funny, zoom): पार्टी करनी है!
 Boy (shock, shake): आज कौन सा दिन है?
 Girl (slap, zoom_shake): जिस दिन मेरा मन हो, वही त्योहार है!
-
 =====
 Boy (normal): अरे तूने मेरे जिम वाले डिब्बे में पराठा काहे रखा?
 Girl (funny, zoom): ताकत चाहिए ना!
 Boy (shock, shake): मैं डाइट पर हूँ!
 Girl (slap, zoom_shake): डाइट गई तेल लेने, पहले पेट का सम्मान कर!
-
 =====
 Boy (normal): अरे तूने मेरी घड़ी बेच काहे दी?
 Girl (funny, zoom): पैसे चाहिए थे!
 Boy (shock, shake): मेरी थी वो!
 Girl (slap, zoom_shake): अब पैसे मेरे हैं… हिसाब मत माँग, हिसाब सुनके दुख होगा!
-
 =====
 Boy (normal): अरे तूने मेरी नई कमीज गुलाबी काहे कर दी?
 Girl (funny, zoom): क्यूट लग रही थी!
 Boy (shock, shake): अरे मैं इसे गाँव में पहनूँगा कैसे?
 Girl (slap, zoom_shake): ऐसे पहनना जैसे हिम्मत हो… लोग हँसेंगे तो समझना फैशन सफल!
-
 =====
 Boy (normal): अरे तूने मेरे हेडफोन पे नेलपेंट काहे लगा दिया?
 Girl (funny, zoom): डिजाइन बना रही थी!
 Boy (shock, shake): अरे ये 10 हजार के थे!
 Girl (slap, zoom_shake): तो क्या हुआ? अब 10 हजार के हैं और मेरी कला भी लगी है!
-
 =====
 Boy (normal): अरे तूने मेरी बाइक पे अपना नाम काहे लिख दिया?
 Girl (funny, zoom): ताकि सब जानें बाइक किसकी है!
