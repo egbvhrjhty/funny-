@@ -1,5 +1,4 @@
 import os
-# GitHub सर्वर पर स्क्रीन नहीं होती, इसलिए Pygame को Dummy Mode में चलाना जरूरी है
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 
 import pygame
@@ -22,7 +21,8 @@ OUTPUT_FOLDER = "./output"
 TEMP_FOLDER = "./temp"
 TEXT_FILE_PATH = "./jokes.txt"
 FONT_PATH = "./NirmalaB.ttf" 
-BG_FOLDER = "./bgs" # <--- नया बैकग्राउंड फोल्डर
+BG_FOLDER = "./bgs" 
+BGM_FILE = "./bgm.mp3"  # <--- मजेदार बैकग्राउंड म्यूजिक यहाँ लगेगा
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 os.makedirs(TEMP_FOLDER, exist_ok=True)
@@ -75,14 +75,12 @@ async def download_voices(story_lines):
 # ==========================================
 def fetch_and_delete_first_joke():
     if not os.path.exists(TEXT_FILE_PATH):
-        print("❌ jokes.txt फाइल नहीं मिली!")
         return None
     with open(TEXT_FILE_PATH, 'r', encoding='utf-8') as f:
         content = f.read()
         
     jokes = [s.strip() for s in content.split("=====") if s.strip()]
     if not jokes:
-        print("❌ कोई जोक/कहानी नहीं बची है!")
         return None
         
     first_joke = jokes[0]
@@ -117,12 +115,37 @@ def fetch_and_delete_first_joke():
 # ==========================================
 # DRAWING FUNCTIONS
 # ==========================================
-# 🟢 नया बैकग्राउंड फंक्शन (फोल्डर से फोटो लेने के लिए)
 def draw_background(surf, bg_img):
     if bg_img:
-        surf.blit(bg_img, (0, 0)) # बैकग्राउंड फोटो लगाओ
+        surf.blit(bg_img, (0, 0))
     else:
-        surf.fill((160, 140, 240)) # अगर फोटो ना मिले तो रंग भर दो
+        surf.fill((160, 140, 240)) 
+
+# 🟢 नया: Text Outlines (Professional Subtitles)
+def render_text_with_outline(surf, text, font, color, x, y, outline_color=(0,0,0), thickness=3):
+    words = text.split(" ")
+    lines, current_line = [], ""
+    max_width = WIDTH - 60
+    
+    for word in words:
+        test_line = current_line + word + " "
+        if font.size(test_line)[0] < max_width:
+            current_line = test_line
+        else:
+            lines.append(current_line)
+            current_line = word + " "
+    lines.append(current_line)
+    
+    for i, line in enumerate(lines):
+        # Draw Outline
+        for dx in range(-thickness, thickness + 1):
+            for dy in range(-thickness, thickness + 1):
+                if dx != 0 or dy != 0:
+                    txt_bg = font.render(line, True, outline_color)
+                    surf.blit(txt_bg, (x + dx, y + i * 50 + dy))
+        # Draw Main Text
+        txt_fg = font.render(line, True, color)
+        surf.blit(txt_fg, (x, y + i * 50))
 
 class Character:
     def __init__(self, name, color):
@@ -145,24 +168,34 @@ class Character:
 
     def draw(self, surf, is_talking, emotion, timer):
         x, y = int(self.pos[0]), int(self.pos[1])
+        
+        # 🟢 नया: शॉक में कैरेक्टर हवा में उचलेगा
+        if emotion == "shock" and is_talking:
+            y -= abs(math.sin(timer * 0.8)) * 30 
+            
         body_y = y 
         arm_swing = math.sin(timer * 0.5) * 20 if is_talking else 0
         
-        pygame.draw.ellipse(surf, (0,0,0,80), (x-70, y+180, 140, 30))
-        pygame.draw.line(surf, (20,20,20), (x - 30, body_y + 160), (x - 30, y + 190), 12)
-        pygame.draw.line(surf, (20,20,20), (x + 30, body_y + 160), (x + 30, y + 190), 12)
+        pygame.draw.ellipse(surf, (0,0,0,80), (x-70, self.pos[1]+180, 140, 30))
+        pygame.draw.line(surf, (20,20,20), (x - 30, body_y + 160), (x - 30, self.pos[1] + 190), 12)
+        pygame.draw.line(surf, (20,20,20), (x + 30, body_y + 160), (x + 30, self.pos[1] + 190), 12)
         pygame.draw.rect(surf, self.color, (x-60, body_y, 120, 160), border_radius=30)
         pygame.draw.rect(surf, (20,20,20), (x-60, body_y, 120, 160), 6, border_radius=30)
 
+        # 🟢 नया: गुस्से में हाथ तेज़ी से हिलेंगे
+        if emotion == "angry" and is_talking: arm_swing = math.sin(timer * 2.0) * 40
         pygame.draw.line(surf, (20,20,20), (x - 60, body_y + 50), (x - 90, body_y + 90 + arm_swing), 12)
         pygame.draw.line(surf, (20,20,20), (x + 60, body_y + 50), (x + 90, body_y + 90 - arm_swing), 12)
 
         head_bounce = math.sin(timer * 1.5) * 5 if is_talking else 0
         head_y = body_y - 60 + head_bounce
-        pygame.draw.circle(surf, (255, 220, 180), (x, head_y), 70)
+        
+        # 🟢 नया: गुस्से में चेहरा लाल हो जाएगा
+        face_color = (255, 150, 150) if emotion == "angry" else (255, 220, 180)
+        pygame.draw.circle(surf, face_color, (x, head_y), 70)
         pygame.draw.circle(surf, (20,20,20), (x, head_y), 70, 6)
 
-        eye_w, eye_h = 20, (4 if self.is_blinking or emotion == "sleep" else 30)
+        eye_w, eye_h = 20, (4 if self.is_blinking else 30)
         look_offset = -10 if self.flip else 10
         if emotion == "shock": eye_h = 50
         
@@ -172,6 +205,13 @@ class Character:
         if emotion == "angry":
             pygame.draw.line(surf, (20,20,20), (x - 40 + look_offset, head_y - 35), (x - 15 + look_offset, head_y - 15), 5)
             pygame.draw.line(surf, (20,20,20), (x + 35 + look_offset, head_y - 35), (x + 10 + look_offset, head_y - 15), 5)
+            # Anger Vein (💢)
+            pygame.draw.line(surf, (200,0,0), (x + 20, head_y - 50), (x + 40, head_y - 30), 4)
+            pygame.draw.line(surf, (200,0,0), (x + 40, head_y - 50), (x + 20, head_y - 30), 4)
+
+        # 🟢 नया: दुखी होने पर आंसू (💧)
+        if emotion == "sad":
+            pygame.draw.ellipse(surf, (0, 191, 255), (x + 30 + look_offset, head_y - 5, 12, 20))
 
         if is_talking:
             m_size = abs(math.sin(timer * 1.5)) * 30 + 5
@@ -179,25 +219,7 @@ class Character:
             if emotion == "angry": m_size = 35
             pygame.draw.ellipse(surf, (180, 0, 0), (x - 20 + look_offset, head_y + 25, 40, m_size))
         else:
-            if emotion == "angry":
-                pygame.draw.line(surf, (20,20,20), (x - 15 + look_offset, head_y + 40), (x + 15 + look_offset, head_y + 30), 6)
-            else:
-                pygame.draw.line(surf, (20,20,20), (x - 15 + look_offset, head_y + 35), (x + 15 + look_offset, head_y + 35), 6)
-
-def render_multiline_text(surf, text, font, color, x, y, max_width):
-    words = text.split(" ")
-    lines, current_line = [], ""
-    for word in words:
-        test_line = current_line + word + " "
-        if font.size(test_line)[0] < max_width:
-            current_line = test_line
-        else:
-            lines.append(current_line)
-            current_line = word + " "
-    lines.append(current_line)
-    for i, line in enumerate(lines):
-        txt_surf = font.render(line, True, color)
-        surf.blit(txt_surf, (x, y + i * 45))
+            pygame.draw.line(surf, (20,20,20), (x - 15 + look_offset, head_y + 35), (x + 15 + look_offset, head_y + 35), 6)
 
 # ==========================================
 # MAIN EXECUTION
@@ -212,21 +234,23 @@ async def main():
     await download_voices(current_story)
 
     pygame.init()
+    # 🟢 नया: Main Surface (ताकि हम कैमरा हिला सकें)
+    main_surf = pygame.Surface((WIDTH, HEIGHT))
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     
-    try: hindi_font = pygame.font.Font(FONT_PATH, 40)
-    except: hindi_font = pygame.font.SysFont("Arial", 40)
+    try: 
+        hindi_font = pygame.font.Font(FONT_PATH, 42)
+        title_font = pygame.font.Font(FONT_PATH, 55)
+    except: 
+        hindi_font = pygame.font.SysFont("Arial", 42)
+        title_font = pygame.font.SysFont("Arial", 55)
 
-    # 🟢 रैंडम बैकग्राउंड लोड करना
     loaded_bg = None
     bg_files = [f for f in os.listdir(BG_FOLDER) if f.endswith(('.png', '.jpg', '.jpeg'))]
     if bg_files:
         selected_bg_path = os.path.join(BG_FOLDER, random.choice(bg_files))
-        print(f"🖼️ Selected Background: {selected_bg_path}")
         loaded_bg = pygame.image.load(selected_bg_path)
         loaded_bg = pygame.transform.scale(loaded_bg, (WIDTH, HEIGHT))
-    else:
-        print("⚠️ bgs फोल्डर में कोई फोटो नहीं मिली! डिफ़ॉल्ट कलर यूज़ कर रहा है।")
 
     temp_video_path = os.path.join(TEMP_FOLDER, "temp_video.mp4")
     final_video_path = os.path.join(OUTPUT_FOLDER, "FINAL_UPLOAD.mp4")
@@ -252,7 +276,7 @@ async def main():
         else:
             audio_clips.append(speech_clip)
         
-        frames_to_render = int(speech_clip.duration * FPS) + 5 
+        frames_to_render = int(speech_clip.duration * FPS) + 10 # Pause के लिए 10 फ्रेम
         
         if "Wife" in chars:
             chars["Wife"].target_pos = [WIDTH//2 - 180, HEIGHT//2 + 100]
@@ -263,22 +287,34 @@ async def main():
 
         for f in range(frames_to_render):
             timer += 1
+            is_talking_now = f < int(speech_clip.duration * FPS)
             
-            # 🟢 बैकग्राउंड ड्रा करें
-            draw_background(screen, loaded_bg)
+            # 🟢 नया: Camera Shake Effect
+            shake_x, shake_y = 0, 0
+            if is_talking_now and emotion in ["angry", "shock"]:
+                shake_x = random.randint(-8, 8)
+                shake_y = random.randint(-8, 8)
+                
+            draw_background(main_surf, loaded_bg)
                 
             for name, char in chars.items():
-                is_talking = (name == speaker and f < int(speech_clip.duration * FPS))
+                is_talking = (name == speaker and is_talking_now)
                 char.update()
-                char.draw(screen, is_talking, emotion if is_talking else "normal", timer)
+                char.draw(main_surf, is_talking, emotion if is_talking else "normal", timer)
                 
-            sub_rect = pygame.Rect(40, HEIGHT - 250, WIDTH - 80, 180)
-            pygame.draw.rect(screen, (0, 0, 0, 200), sub_rect, border_radius=25)
-            speaker_txt = hindi_font.render(f"{speaker}:", True, (255, 0, 0) if emotion == "angry" else (255, 255, 0))
-            screen.blit(speaker_txt, (sub_rect.x + 30, sub_rect.y + 20))
-            render_multiline_text(screen, line['text'], hindi_font, (255, 255, 255), sub_rect.x + 30, sub_rect.y + 70, sub_rect.width - 60)
+            # 🟢 नया: Top Banner
+            pygame.draw.rect(main_surf, (255, 200, 0), (0, 40, WIDTH, 80))
+            render_text_with_outline(main_surf, "Husband vs Wife 😂", title_font, (255, 255, 255), 150, 50, (0,0,0), 4)
 
-            pygame.display.flip()
+            # 🟢 नया: Outline वाले Subtitles
+            if is_talking_now:
+                spk_color = (255, 100, 100) if emotion == "angry" else (255, 255, 100)
+                render_text_with_outline(main_surf, f"{speaker}:", title_font, spk_color, 40, HEIGHT - 280, (0,0,0), 4)
+                render_text_with_outline(main_surf, line['text'], hindi_font, (255, 255, 255), 40, HEIGHT - 210, (0,0,0), 4)
+
+            # Shake apply करके स्क्रीन पर ड्रा करें
+            screen.fill((0,0,0))
+            screen.blit(main_surf, (shake_x, shake_y))
             
             view = pygame.surfarray.array3d(screen)
             view = view.transpose([1, 0, 2])
@@ -288,8 +324,15 @@ async def main():
     video_writer.release()
     pygame.quit()
 
-    print("🎧 Merging Audio and Video...")
+    print("🎧 Merging Audio, BGM and Video...")
     final_audio = concatenate_audioclips(audio_clips)
+    
+    # 🟢 नया: BGM (Background Music) जोड़ना
+    if os.path.exists(BGM_FILE):
+        print("🎵 Adding Background Music...")
+        bgm_clip = AudioFileClip(BGM_FILE).fx(afx.volumex, 0.15).loop(duration=final_audio.duration)
+        final_audio = CompositeAudioClip([final_audio, bgm_clip])
+
     video_clip = VideoFileClip(temp_video_path)
     final_video = video_clip.set_audio(final_audio)
 
