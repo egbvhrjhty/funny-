@@ -21,10 +21,12 @@ import edge_tts
 OUTPUT_FOLDER = "./output"
 TEMP_FOLDER = "./temp"
 TEXT_FILE_PATH = "./jokes.txt"
-FONT_PATH = "./NirmalaB.ttf" # यह फाइल गिटहब पर होनी चाहिए
+FONT_PATH = "./NirmalaB.ttf" 
+BG_FOLDER = "./bgs" # <--- नया बैकग्राउंड फोल्डर
 
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 os.makedirs(TEMP_FOLDER, exist_ok=True)
+os.makedirs(BG_FOLDER, exist_ok=True)
 
 WIDTH, HEIGHT = 720, 1280
 FPS = 30
@@ -89,7 +91,6 @@ def fetch_and_delete_first_joke():
     with open(TEXT_FILE_PATH, 'w', encoding='utf-8') as f:
         f.write("\n=====\n".join(remaining_jokes))
         
-    # Parse Joke Text into Dictionary
     story_data = []
     lines = first_joke.split('\n')
     for idx, line in enumerate(lines):
@@ -116,17 +117,12 @@ def fetch_and_delete_first_joke():
 # ==========================================
 # DRAWING FUNCTIONS
 # ==========================================
-def draw_cartoon_background(surf, timer):
-    surf.fill((160, 140, 240)) 
-    pygame.draw.rect(surf, (200, 140, 100), (0, HEIGHT - 350, WIDTH, 350))
-    pygame.draw.ellipse(surf, (255, 150, 180), (WIDTH//2 - 250, HEIGHT - 280, 500, 120))
-    
-    window_x, window_y = WIDTH//2 - 150, 150
-    pygame.draw.rect(surf, (20, 20, 60), (window_x, window_y, 300, 250))
-    pygame.draw.circle(surf, (255, 255, 200), (window_x + 220, window_y + 70), 40)
-    pygame.draw.rect(surf, (255, 255, 255), (window_x, window_y, 300, 250), 12) 
-    pygame.draw.line(surf, (255, 255, 255), (window_x + 150, window_y), (window_x + 150, window_y + 250), 10)
-    pygame.draw.line(surf, (255, 255, 255), (window_x, window_y + 125), (window_x + 300, window_y + 125), 10)
+# 🟢 नया बैकग्राउंड फंक्शन (फोल्डर से फोटो लेने के लिए)
+def draw_background(surf, bg_img):
+    if bg_img:
+        surf.blit(bg_img, (0, 0)) # बैकग्राउंड फोटो लगाओ
+    else:
+        surf.fill((160, 140, 240)) # अगर फोटो ना मिले तो रंग भर दो
 
 class Character:
     def __init__(self, name, color):
@@ -221,6 +217,17 @@ async def main():
     try: hindi_font = pygame.font.Font(FONT_PATH, 40)
     except: hindi_font = pygame.font.SysFont("Arial", 40)
 
+    # 🟢 रैंडम बैकग्राउंड लोड करना
+    loaded_bg = None
+    bg_files = [f for f in os.listdir(BG_FOLDER) if f.endswith(('.png', '.jpg', '.jpeg'))]
+    if bg_files:
+        selected_bg_path = os.path.join(BG_FOLDER, random.choice(bg_files))
+        print(f"🖼️ Selected Background: {selected_bg_path}")
+        loaded_bg = pygame.image.load(selected_bg_path)
+        loaded_bg = pygame.transform.scale(loaded_bg, (WIDTH, HEIGHT))
+    else:
+        print("⚠️ bgs फोल्डर में कोई फोटो नहीं मिली! डिफ़ॉल्ट कलर यूज़ कर रहा है।")
+
     temp_video_path = os.path.join(TEMP_FOLDER, "temp_video.mp4")
     final_video_path = os.path.join(OUTPUT_FOLDER, "FINAL_UPLOAD.mp4")
 
@@ -245,9 +252,8 @@ async def main():
         else:
             audio_clips.append(speech_clip)
         
-        frames_to_render = int(speech_clip.duration * FPS) + 5 # 5 extra frames for pause
+        frames_to_render = int(speech_clip.duration * FPS) + 5 
         
-        # Position Logic
         if "Wife" in chars:
             chars["Wife"].target_pos = [WIDTH//2 - 180, HEIGHT//2 + 100]
             chars["Wife"].flip = False
@@ -257,7 +263,9 @@ async def main():
 
         for f in range(frames_to_render):
             timer += 1
-            draw_cartoon_background(screen, timer)
+            
+            # 🟢 बैकग्राउंड ड्रा करें
+            draw_background(screen, loaded_bg)
                 
             for name, char in chars.items():
                 is_talking = (name == speaker and f < int(speech_clip.duration * FPS))
