@@ -1,7 +1,7 @@
-name: Test Story Video Generator
+name: Funny Cartoon Video Generator (Test Mode)
 
 on:
-  workflow_dispatch:  # इससे आप जब चाहें मैन्युअली (Run Workflow) बटन दबाकर चला सकते हैं
+  workflow_dispatch:  # मैन्युअली रन करने के लिए
 
 jobs:
   run-bot:
@@ -22,28 +22,27 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y ffmpeg imagemagick
-        sudo sed -i 's/rights="none"/rights="read|write"/' /etc/ImageMagick-6/policy.xml
-
+        sudo apt-get install -y ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
+        
     - name: Install Python Libraries
       run: |
         pip install --upgrade pip
-        pip install moviepy==1.0.3 edge-tts numpy Pillow==9.5.0 imageio-ffmpeg
+        pip install pygame moviepy==1.0.3 edge-tts numpy opencv-python-headless
 
-    - name: Run Story Bot (Test Mode)
+    - name: Run Cartoon Video Bot
       run: |
         python bot.py
 
     - name: Upload Video for Download
       uses: actions/upload-artifact@v4
       with:
-        name: My-Story-Video
+        name: Cartoon-Joke-Video
         path: output/FINAL_UPLOAD.mp4
 
-    - name: Commit updated stories.txt
+    - name: Commit updated jokes.txt
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add stories.txt
-        git commit -m "🤖 [TEST] कहानी यूज़ की गई और Text File अपडेट की गई" || echo "No changes to commit"
+        git add jokes.txt
+        git commit -m "🤖 [TEST] जोक यूज़ किया गया और Text File अपडेट की गई" || echo "No changes to commit"
         git push
