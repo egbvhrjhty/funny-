@@ -37,19 +37,18 @@ char_colors = {
 }
 
 # ==========================================
-# 2. AUDIO GENERATION (SUPER LOUD VOICE)
+# 2. AUDIO GENERATION 
 # ==========================================
 async def download_voices(story_lines):
     print("🎙️ Generating AI Voices...")
     for i, line in enumerate(story_lines):
         filename = os.path.join(TEMP_FOLDER, f"temp_audio_{i}.mp3")
         line["audio"] = filename
-        # 🟢 वॉल्यूम +100% कर दिया गया है
         communicate = edge_tts.Communicate(line["text"], line["voice"], rate=line["rate"], pitch=line["pitch"], volume="+100%")
         await communicate.save(filename)
 
 # ==========================================
-# 3. TEXT PARSING (READING PROMPTS)
+# 3. TEXT PARSING 
 # ==========================================
 def fetch_and_delete_first_joke():
     if not os.path.exists(TEXT_FILE_PATH): return None
@@ -127,6 +126,7 @@ class Character:
     def draw(self, surf, is_talking, emotion, timer, is_action_time):
         x, y = int(self.pos[0]), int(self.pos[1])
         
+        # कैरेक्टर का उछलना (Jump) सिर्फ SFX के समय (Last में) होगा
         if emotion in ["shock", "slap", "punch", "funny"] and is_action_time: 
             y -= abs(math.sin(timer * 0.8)) * 40 
             
@@ -139,7 +139,7 @@ class Character:
         pygame.draw.rect(surf, self.color, (x-60, body_y, 120, 160), border_radius=30)
         pygame.draw.rect(surf, (20,20,20), (x-60, body_y, 120, 160), 6, border_radius=30)
 
-        if emotion in ["angry", "slap"] and is_action_time: arm_swing = math.sin(timer * 2.0) * 40
+        if emotion in ["angry", "slap"] and is_talking: arm_swing = math.sin(timer * 2.0) * 40
         pygame.draw.line(surf, (20,20,20), (x - 60, body_y + 50), (x - 90, body_y + 90 + arm_swing), 12)
         pygame.draw.line(surf, (20,20,20), (x + 60, body_y + 50), (x + 90, body_y + 90 - arm_swing), 12)
 
@@ -166,7 +166,7 @@ class Character:
         if emotion in ["sad", "cry"]: 
             pygame.draw.ellipse(surf, (0, 191, 255), (x + 30 + look_offset, head_y - 5, 12, 20))
 
-        # 🟢 मुँह की कोडिंग: अगर is_talking False है तो तुरंत लाइन बन जाएगी (मुँह बंद)
+        # 🟢 मुँह की कोडिंग: is_talking False होते ही तुरंत बंद हो जाएगा
         if is_talking:
             m_size = abs(math.sin(timer * 1.5)) * 30 + 5
             if emotion in ["shock", "slap"]: m_size = 45
@@ -207,15 +207,14 @@ async def main():
     audio_clips = []
     timer = 0
     
-    # 🟢 Audio Mixing Logic (MOUTH SYNC FIX)
     for idx, line in enumerate(current_story):
-        # वॉल्यूम को 4.0x (400%) कर दिया है
         speech_clip = AudioFileClip(line["audio"]).fx(afx.volumex, 4.0)
         
-        # 🟢 BUG FIX: AI Voice लास्ट में 0.15 सेकंड खाली रहता है। 
-        # इसे काट दिया (Trim) गया है ताकि मुँह 0.0 सेकंड में बंद हो जाए!
-        if speech_clip.duration > 0.3:
-            speech_clip = speech_clip.subclip(0, speech_clip.duration - 0.15)
+        # 🟢 SILENCE TRIMMER (मूह 1 सेकंड हिलने वाले बग का इलाज)
+        # AI Voice फाइल के लास्ट में 0.5 सेकंड की शांति जोड़ देता है। हम उसे काट रहे हैं।
+        trim_amount = 0.5 
+        if speech_clip.duration > (trim_amount + 0.2):
+            speech_clip = speech_clip.subclip(0, speech_clip.duration - trim_amount)
             
         emotion = line.get("emotion", "normal")
         
@@ -236,7 +235,7 @@ async def main():
             line["speech_dur"] = speech_clip.duration
             audio_clips.append(mixed_audio)
         else:
-            line["total_dur"] = speech_clip.duration + 0.3 # थोडा सा पॉज़
+            line["total_dur"] = speech_clip.duration + 0.4 
             line["speech_dur"] = speech_clip.duration
             audio_clips.append(speech_clip)
 
@@ -258,7 +257,6 @@ async def main():
 
         for f in range(frames_to_render):
             timer += 1
-            # 🟢 Exact frame cutoff for mouth animation
             is_talking_now = f < speech_frames
             is_action_time = f >= speech_frames
             
@@ -269,8 +267,10 @@ async def main():
                 char.update()
                 char.draw(main_surf, is_talking, emotion if name == speaker else "normal", timer, is_action_time)
                 
-            is_zoomed = "zoom" in camera_cmd and is_action_time
-            is_shaking = "shake" in camera_cmd and is_action_time
+            # 🟢 CAMERA ZOOM / SHAKE LOGIC (Starting of the voice)
+            # अगर प्रॉम्प्ट में zoom या shake है, तो वो आवाज़ के साथ (is_talking_now) चलेगा
+            is_zoomed = "zoom" in camera_cmd and is_talking_now
+            is_shaking = "shake" in camera_cmd and is_talking_now
             
             if is_zoomed or is_shaking:
                 zoom_scale = 1.3 if is_zoomed else 1.0
@@ -300,7 +300,6 @@ async def main():
             img_bgr = cv2.cvtColor(view, cv2.COLOR_RGB2BGR)
             video_writer.write(img_bgr)
 
-    # Laugh Track Frames (Clean screen)
     laugh_frames = 2 * FPS 
     for f in range(laugh_frames):
         timer += 1
